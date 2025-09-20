@@ -1,4 +1,3 @@
-// restaurant.dart
 import 'package:json_annotation/json_annotation.dart';
 
 part 'restaurant.g.dart';
@@ -9,12 +8,14 @@ class Restaurant {
   final String name;
   final String cuisineType;
   final double rating;
+  final String tier;
 
   Restaurant({
     required this.id,
     required this.name,
     required this.cuisineType,
     required this.rating,
+    required this.tier,
   });
 
   factory Restaurant.fromJson(Map<String, dynamic> json) => _$RestaurantFromJson(json);

@@ -1,4 +1,3 @@
-// lib/widgets/restaurant_card.dart
 import 'package:flutter/material.dart';
 import '../Search/models/restaurant.dart';
 

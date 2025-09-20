@@ -15,16 +15,45 @@ class _SearchScreenState extends State<SearchScreen> {
   final SearchService _searchService = SearchService();
   List<Restaurant> _searchResults = [];
   bool _isLoading = false;
+  bool _isSearching = false;
 
-  void _onSearch(String query) async {
-    if (query.isEmpty) {
+  @override
+  void initState() {
+    super.initState();
+    _loadInitialResults();
+    _searchController.addListener(_onSearchChanged);
+  }
+  
+  void _loadInitialResults() async {
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      final results = await _searchService.getTopTierRestaurants();
       if (!mounted) return;
       setState(() {
-        _searchResults = [];
+        _searchResults = results;
       });
-      return;
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+    } finally {
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+      });
     }
+  }
 
+  void _onSearchChanged() {
+    setState(() {
+      _isSearching = _searchController.text.isNotEmpty;
+    });
+  }
+
+  void _onSearch(String query) async {
     if (!mounted) return;
     setState(() {
       _isLoading = true;
@@ -47,6 +76,13 @@ class _SearchScreenState extends State<SearchScreen> {
         _isLoading = false;
       });
     }
+  }
+  
+  @override
+  void dispose() {
+    _searchController.removeListener(_onSearchChanged);
+    _searchController.dispose();
+    super.dispose();
   }
 
   @override
