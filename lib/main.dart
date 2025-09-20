@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'home_screen.dart';
-import 'Pickup_screens/pickup_screen.dart';
+import 'screens/pickup_screen.dart';
 import 'orders/orders_page.dart';
+import 'Search/search_screen.dart';
+import 'profile/profile.dart';
 
 void main() {
   runApp(const FoodDeliveryApp());
@@ -35,6 +37,8 @@ class _MainPageState extends State<MainPage> {
     HomeScreen(),
     PickUpScreen(),
     OrdersPage(),
+    SearchScreen(),
+    ProfilePage(),
   ];
 
   @override
@@ -50,7 +54,7 @@ class _MainPageState extends State<MainPage> {
         return true;
       },
       child: Scaffold(
-        body: _screens[_currentIndex],
+        body: _screens[_currentIndex],  
         bottomNavigationBar: BottomNavigationBar(
           currentIndex: _currentIndex,
           selectedItemColor: Colors.red,
@@ -64,9 +68,10 @@ class _MainPageState extends State<MainPage> {
           items: const [
             BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
             BottomNavigationBarItem(icon: Icon(Icons.store_mall_directory), label: "Pickup"),
-            BottomNavigationBarItem(icon: Icon(Icons.local_offer), label: "Offers"),
-            BottomNavigationBarItem(icon: Icon(Icons.search), label: "Search"),
             BottomNavigationBarItem(icon: Icon(Icons.receipt), label: "Orders"),
+            BottomNavigationBarItem(icon: Icon(Icons.search), label: "Search"),
+            BottomNavigationBarItem(icon: Icon(Icons.person), label: 'You'),
+            
           ],
         ),
       ),
