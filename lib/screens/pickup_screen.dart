@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:location/location.dart';
+import 'package:geolocator/geolocator.dart'; // Use geolocator instead of location
 
 class PickUpScreen extends StatefulWidget {
   const PickUpScreen({super.key});
@@ -11,46 +11,53 @@ class PickUpScreen extends StatefulWidget {
 
 class _PickUpScreenState extends State<PickUpScreen> {
   GoogleMapController? _mapController;
-  LocationData? _currentLocation;
-  final Location _location = Location();
+  Position? _currentLocation; // Use Position object from geolocator
+  bool _isLoading = true;
+
+  // Set a default starting position (e.g., Central Jakarta) for a better UX
+  static const _initialCameraPosition = CameraPosition(
+    target: LatLng(-6.1751, 106.8650),
+    zoom: 15,
+  );
 
   @override
   void initState() {
     super.initState();
-    _getCurrentLocation();
+    // We will get the location once the map is created
   }
 
   Future<void> _getCurrentLocation() async {
-    bool serviceEnabled;
-    PermissionStatus permissionGranted;
+    try {
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          // Handle the case where the user denies permission
+          ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Location permissions are denied')));
+          setState(() => _isLoading = false);
+          return;
+        }
+      }
 
-    // cek apakah service lokasi aktif
-    serviceEnabled = await _location.serviceEnabled();
-    if (!serviceEnabled) {
-      serviceEnabled = await _location.requestService();
-      if (!serviceEnabled) return;
-    }
+      final position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
 
-    // cek permission
-    permissionGranted = await _location.hasPermission();
-    if (permissionGranted == PermissionStatus.denied) {
-      permissionGranted = await _location.requestPermission();
-      if (permissionGranted != PermissionStatus.granted) return;
-    }
+      setState(() {
+        _currentLocation = position;
+        _isLoading = false;
+      });
 
-    // dapatkan lokasi sekarang
-    final locationData = await _location.getLocation();
-    setState(() {
-      _currentLocation = locationData;
-    });
-
-    // pindahkan kamera ke lokasi sekarang
-    if (_mapController != null) {
-      _mapController!.animateCamera(
+      // Safely move camera to current location
+      _mapController?.animateCamera(
         CameraUpdate.newLatLng(
-          LatLng(locationData.latitude!, locationData.longitude!),
+          LatLng(position.latitude, position.longitude),
         ),
       );
+    } catch (e) {
+      debugPrint("Error getting location: $e");
+      setState(() => _isLoading = false);
     }
   }
 
@@ -60,23 +67,26 @@ class _PickUpScreenState extends State<PickUpScreen> {
       appBar: AppBar(
         title: const Text("Pick Up"),
       ),
-      body: _currentLocation == null
-          ? const Center(child: CircularProgressIndicator())
-          : GoogleMap(
-              initialCameraPosition: CameraPosition(
-                target: LatLng(
-                  _currentLocation!.latitude!,
-                  _currentLocation!.longitude!,
-                ),
-                zoom: 15,
-              ),
-              myLocationEnabled: true,          // icon titik biru
-              myLocationButtonEnabled: true,    // tombol ke lokasi saya
-              zoomControlsEnabled: false,       // hapus tombol zoom
-              onMapCreated: (GoogleMapController controller) {
-                _mapController = controller;
-              },
+      body: Stack(
+        children: [
+          GoogleMap(
+            initialCameraPosition: _initialCameraPosition,
+            myLocationEnabled: true,
+            myLocationButtonEnabled: true,
+            zoomControlsEnabled: false,
+            onMapCreated: (GoogleMapController controller) {
+              _mapController = controller;
+              // Fetch location only after the map is ready
+              _getCurrentLocation();
+            },
+          ),
+          // Show a loading indicator on top of the map while fetching location
+          if (_isLoading)
+            const Center(
+              child: CircularProgressIndicator(),
             ),
+        ],
+      ),
     );
   }
 }
