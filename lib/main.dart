@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'home_screen.dart';
 import 'screens/pickup_screen.dart';
 import 'orders/orders_page.dart';
-import 'Search/search_screen.dart';
+import 'Search/search_screen.dart';                  
 import 'profile/profile.dart';
 
 void main() {
