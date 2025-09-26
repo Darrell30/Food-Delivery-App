@@ -5,7 +5,7 @@ import 'orders/orders_page.dart';
 import 'Search/search_screen.dart';                  
 import 'profile/profile.dart';
 
-void main() {
+void main() { 
   runApp(const FoodDeliveryApp());
 }
 
@@ -17,7 +17,7 @@ class FoodDeliveryApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: "Food Delivery",
-      theme: ThemeData(primarySwatch: Colors.red),
+      theme: ThemeData(primaryColor: const Color.fromRGBO(39, 0, 197, 1)),
       home: const MainPage(),
     );
   }
@@ -57,7 +57,7 @@ class _MainPageState extends State<MainPage> {
         body: _screens[_currentIndex],  
         bottomNavigationBar: BottomNavigationBar(
           currentIndex: _currentIndex,
-          selectedItemColor: Colors.red,
+          selectedItemColor: Color.fromRGBO(39, 0, 197, 1),
           unselectedItemColor: Colors.grey,
           type: BottomNavigationBarType.fixed,
           onTap: (index) {

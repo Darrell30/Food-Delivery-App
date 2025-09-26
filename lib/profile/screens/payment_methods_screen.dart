@@ -24,7 +24,7 @@ class PaymentMethodsScreen extends StatefulWidget {
 }
 
 class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
-  static const uiColor = Color.fromARGB(255, 118, 0, 151);
+  static const uiColor = Color.fromRGBO(39, 0, 197, 1);
 
   final List<PaymentMethod> _eWallets = [
     PaymentMethod(name: 'GoPay', balance: 'Balance: Rp 123.456', icon: Icons.account_balance_wallet, isSelected: true),

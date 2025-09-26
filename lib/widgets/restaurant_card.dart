@@ -22,7 +22,7 @@ class RestaurantCard extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             const Icon(Icons.star, color: Colors.amber, size: 16),
-            const SizedBox(width: 4),
+    const SizedBox(width: 4),
             Text(restaurant.rating.toString()),
           ],
         ),

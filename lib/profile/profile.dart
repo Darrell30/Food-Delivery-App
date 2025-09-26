@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:food_delivery_app/profile/screens/payment_methods_screen.dart';
-import 'map_screen.dart'; // Make sure this import is correct
+import 'map_screen.dart'; 
+import 'screens/payment_methods_screen.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -15,8 +15,8 @@ class _ProfilePageState extends State<ProfilePage> {
   bool _isEditing = false;
   String _currentAddress = "Set my address";
 
-  // Gojek's signature green color
-  static const uiColor = Color.fromARGB(255, 118, 0, 151);
+  // Using the accent color from your HomeScreen
+  static const Color accentColor = Color.fromRGBO(39, 0, 197, 1);
 
   @override
   void initState() {
@@ -27,8 +27,8 @@ class _ProfilePageState extends State<ProfilePage> {
   void _toggleEdit() {
     setState(() {
       if (_isEditing) {
-        // When saving, update the state variable
         _userName = _nameController.text;
+        FocusScope.of(context).unfocus();
       }
       _isEditing = !_isEditing;
     });
@@ -56,20 +56,26 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text('Hi, ${_userName}', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-        backgroundColor: uiColor,
-        elevation: 1.0,
+        title: Text(
+          'Hi, ${_userName}!',
+          style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        centerTitle: true,
       ),
       body: ListView(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
         children: [
+          const SizedBox(height: 20),
           _buildHeader(),
-          const SizedBox(height: 10),
-          _buildSectionHeader("Account"),
+          const SizedBox(height: 20),
+          const Divider(),
           _buildMenuListItem(
             icon: Icons.location_on_outlined,
-            title: "My Address",
+            title: "Addresses",
             subtitle: _currentAddress,
             onTap: _navigateToMapScreen,
           ),
@@ -84,106 +90,136 @@ class _ProfilePageState extends State<ProfilePage> {
             },
           ),
           _buildMenuListItem(
-            icon: Icons.local_activity_outlined,
-            title: "Vouchers",
-            onTap: () { /* Navigate to Vouchers */ },
-          ),
-          const SizedBox(height: 10),
-          _buildSectionHeader("General"),
-           _buildMenuListItem(
-            icon: Icons.settings_outlined,
-            title: "Settings",
-            onTap: () { /* Navigate to Settings */ },
-          ),
-          _buildMenuListItem(
-            icon: Icons.help_outline,
-            title: "Help Center",
-            onTap: () { /* Navigate to Help Center */ },
+            icon: Icons.security_outlined,
+            title: "Account Security",
+            onTap: () {},
           ),
           const Divider(),
           _buildMenuListItem(
-            icon: Icons.logout,
-            title: "Log Out",
-            isLogout: true, // Special styling for logout
-            onTap: () { /* Handle Log Out */ },
+            icon: Icons.help_outline,
+            title: "Help Center",
+            onTap: () {},
           ),
+          _buildMenuListItem(
+            icon: Icons.info_outline,
+            title: "About",
+            onTap: () {},
+          ),
+          const SizedBox(height: 30),
+          _buildLogoutButton(),
         ],
       ),
     );
   }
 
-  // Header widget with profile picture and name/edit field
+  // Header widget styled like HomeScreen
   Widget _buildHeader() {
-    return Container(
-      color: Colors.white,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-      child: Row(
-        children: [
-          const CircleAvatar(
-            radius: 32,
-            backgroundColor: uiColor,
-            child: Icon(Icons.person, size: 40, color: Colors.white),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: _isEditing
-                ? TextField(
-                    controller: _nameController,
-                    autofocus: true,
-                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                    decoration: const InputDecoration(
-                      isDense: true,
-                      contentPadding: EdgeInsets.zero,
-                      border: InputBorder.none,
+    return Row(
+      children: [
+        const CircleAvatar(
+          radius: 35,
+          backgroundColor: Color(0xFFF3F3F3), // Light grey
+          child: Icon(Icons.person, size: 40, color: Colors.black54),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _isEditing
+                  ? TextField(
+                      controller: _nameController,
+                      autofocus: true,
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      decoration: const InputDecoration(
+                        isDense: true,
+                        contentPadding: EdgeInsets.zero,
+                        border: InputBorder.none,
+                      ),
+                    )
+                  : Text(
+                      _userName,
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  )
-                : Text(
-                    _userName,
-                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
+              const SizedBox(height: 4),
+              Text(
+                "slushy@email.com", // Placeholder email
+                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+              ),
+            ],
           ),
-          IconButton(
-            icon: Icon(_isEditing ? Icons.check_circle : Icons.edit_outlined, color: uiColor),
-            onPressed: _toggleEdit,
+        ),
+        TextButton(
+          onPressed: _toggleEdit,
+          child: Text(
+            _isEditing ? "Save" : "Edit",
+            style: const TextStyle(color: accentColor, fontWeight: FontWeight.bold),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
-  // Reusable widget for creating a styled list tile menu item
+  // A cleaner list item to match the new style
   Widget _buildMenuListItem({
     required IconData icon,
     required String title,
     String? subtitle,
     required VoidCallback onTap,
-    bool isLogout = false,
   }) {
-    final titleColor = isLogout ? Colors.red : Colors.black87;
-    final iconColor = isLogout ? Colors.red : Colors.grey[700];
-
-    return Container(
-      color: Colors.white,
-      child: ListTile(
-        leading: Icon(icon, color: iconColor),
-        title: Text(title, style: TextStyle(color: titleColor, fontWeight: FontWeight.w500)),
-        subtitle: subtitle != null ? Text(subtitle, style: TextStyle(color: Colors.grey[600]), maxLines: 1, overflow: TextOverflow.ellipsis,) : null,
-        trailing: isLogout ? null : const Icon(Icons.chevron_right, color: Colors.grey),
-        onTap: onTap,
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12.0),
+        child: Row(
+          children: [
+            Icon(icon, color: Colors.black87, size: 26),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                  ),
+                  if (subtitle != null) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right, color: Colors.grey),
+          ],
+        ),
       ),
     );
   }
 
-  // Reusable widget for section headers like "Account"
-  Widget _buildSectionHeader(String title) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
-      child: Text(
-        title.toUpperCase(),
+  // Logout button styled with the red accent color
+  Widget _buildLogoutButton() {
+    return TextButton(
+      onPressed: () {
+        // Handle logout logic
+      },
+      child: const Text(
+        "Log Out",
         style: TextStyle(
-          color: Colors.grey[600],
+          color: accentColor,
+          fontSize: 16,
           fontWeight: FontWeight.bold,
-          fontSize: 14,
         ),
       ),
     );

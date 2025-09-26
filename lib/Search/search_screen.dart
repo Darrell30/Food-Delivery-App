@@ -49,7 +49,6 @@ class _SearchScreenState extends State<SearchScreen> {
 
   void _onSearchChanged() {
     setState(() {
-      _isSearching = _searchController.text.isNotEmpty;
     });
   }
 

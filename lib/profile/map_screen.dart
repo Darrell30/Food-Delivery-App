@@ -111,7 +111,7 @@ class _MapScreenState extends State<MapScreen> {
                 }
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Color.fromARGB(255, 118, 0, 151),
+                backgroundColor: Color.fromRGBO(39, 0, 197, 1),
                 padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
               ),
               child: const Text('Confirm This Address', style: TextStyle(fontSize: 16, color: Colors.white)),

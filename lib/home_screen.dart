@@ -16,7 +16,7 @@ class HomeScreen extends StatelessWidget {
           children: const [
             Text(
               "DELIVERING TO",
-              style: TextStyle(fontSize: 12, color: Colors.red),
+              style: TextStyle(fontSize: 12, color: Color.fromRGBO(39, 0, 197, 1)),
             ),
             Text(
               "1122 Street Ave",
@@ -161,7 +161,7 @@ class SectionTitle extends StatelessWidget {
       children: [
         Text(title,
             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-        const Text("See All", style: TextStyle(color: Colors.red)),
+        const Text("See All", style: TextStyle(color: Color.fromRGBO(39, 0, 197, 1))),
       ],
     );
   }
