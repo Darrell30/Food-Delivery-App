@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-// --- Data Model ---
 class PaymentMethod {
   final String name;
   final String? balance;
@@ -15,7 +14,6 @@ class PaymentMethod {
   });
 }
 
-// --- Main Screen Widget ---
 class PaymentMethodsScreen extends StatefulWidget {
   const PaymentMethodsScreen({super.key});
 
@@ -68,7 +66,7 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
         backgroundColor: uiColor,
         elevation: 1.0,
       ),
-      body: ListView( // Changed Column to ListView to make it scrollable
+      body: ListView(
         children: [
           const SizedBox(height: 10),
           _buildSectionHeader("E-Wallets"),
@@ -78,17 +76,13 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
           _buildSectionHeader("Cards & Other Methods"),
           ..._otherMethods.map((method) => _buildPaymentTile(method)),
           
-          // --- NEW: Add this as a list tile ---
-          _buildAddCardTile(), // Call the new widget here
-          // --- END NEW ---
+          _buildAddCardTile(),
 
-          const SizedBox(height: 20), // Add some bottom padding
+          const SizedBox(height: 20),
         ],
       ),
     );
   }
-
-  // --- Reusable Widgets ---
 
   Widget _buildSectionHeader(String title) {
     return Padding(
@@ -132,7 +126,6 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
     );
   }
 
-  // --- NEW WIDGET: A cleaner "Add Card" tile ---
   Widget _buildAddCardTile() {
     return Container(
       color: Colors.white,
@@ -144,7 +137,6 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
         ),
         trailing: const Icon(Icons.chevron_right, color: Colors.grey),
         onTap: () {
-          // TODO: Implement navigation to an "Add Card" screen
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Navigate to Add New Card Screen'))
           );

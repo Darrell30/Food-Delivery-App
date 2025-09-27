@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -12,7 +13,7 @@ class MapScreen extends StatefulWidget {
 
 class _MapScreenState extends State<MapScreen> {
   static const _initialCameraPosition = CameraPosition(
-    target: LatLng(-6.2088, 106.8456), // Jakarta
+    target: LatLng(-6.2088, 106.8456),
     zoom: 14.0,
   );
 
@@ -30,33 +31,40 @@ class _MapScreenState extends State<MapScreen> {
 
     try {
       LocationPermission permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Location permissions are denied.'))
+          const SnackBar(content: Text('Location permissions are denied.')),
         );
-        setState(() => _isLoading = false);
+        if (mounted) setState(() => _isLoading = false);
         return;
       }
+
       Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
       );
+
+      if (!mounted) return;
       setState(() {
         _pickedLocation = LatLng(position.latitude, position.longitude);
         _isLoading = false;
       });
+
       _mapController.animateCamera(
         CameraUpdate.newLatLngZoom(_pickedLocation!, 16.0),
       );
     } catch (e) {
+      if (!mounted) return;
       setState(() => _isLoading = false);
       debugPrint("Error getting location: $e");
     }
   }
 
-  // UPDATED AND CORRECTED FUNCTION
   Future<String> _getAddressFromLatLng(LatLng latLng) async {
     try {
-      List<Placemark> placemarks = await placemarkFromCoordinates(latLng.latitude, latLng.longitude);
+      List<Placemark> placemarks =
+          await placemarkFromCoordinates(latLng.latitude, latLng.longitude);
 
       if (placemarks.isNotEmpty) {
         Placemark place = placemarks[0];
@@ -68,6 +76,12 @@ class _MapScreenState extends State<MapScreen> {
       debugPrint("Error getting address: $e");
       return "Could not get address";
     }
+  }
+
+  //simpen alamat
+  Future<void> _saveAddress(String address) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('user_address', address);
   }
 
   @override
@@ -92,6 +106,7 @@ class _MapScreenState extends State<MapScreen> {
               _getCurrentLocation();
             },
             onCameraMove: (position) {
+              if (!mounted) return;
               setState(() {
                 _pickedLocation = position.target;
               });
@@ -104,17 +119,27 @@ class _MapScreenState extends State<MapScreen> {
           Positioned(
             bottom: 30,
             child: ElevatedButton(
-              onPressed: _pickedLocation == null ? null : () async {
-                final address = await _getAddressFromLatLng(_pickedLocation!);
-                if (mounted) {
-                  Navigator.of(context).pop(address);
-                }
-              },
+              onPressed: _pickedLocation == null
+                  ? null
+                  : () async {
+                      final address =
+                          await _getAddressFromLatLng(_pickedLocation!);
+
+                      await _saveAddress(address);
+
+                      if (mounted) {
+                        Navigator.of(context).pop(address);
+                      }
+                    },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Color.fromRGBO(39, 0, 197, 1),
-                padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                backgroundColor: const Color.fromRGBO(39, 0, 197, 1),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
               ),
-              child: const Text('Confirm This Address', style: TextStyle(fontSize: 16, color: Colors.white)),
+              child: const Text(
+                'Confirm This Address',
+                style: TextStyle(fontSize: 16, color: Colors.white),
+              ),
             ),
           ),
         ],
