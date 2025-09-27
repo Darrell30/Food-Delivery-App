@@ -1,5 +1,27 @@
+// orders/orders_page.dart
+
 import 'package:flutter/material.dart';
 import 'order_models.dart'; 
+import '../screens/OrderScreen.dart'; 
+import 'dart:math';
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
+
+const String _ordersKey = 'persistent_orders_list';
+
+// --- Helper untuk membuat ID Pesanan Baru ---
+String _generateNewOrderId(List<Order> orders) {
+  int maxId = 0;
+  for (var order in orders) {
+    if (order.id.startsWith('ORD')) {
+      final idNumber = int.tryParse(order.id.substring(3));
+      if (idNumber != null && idNumber > maxId) {
+        maxId = idNumber;
+      }
+    }
+  }
+  return 'ORD${(maxId + 1).toString().padLeft(3, '0')}';
+}
 
 void _showPaymentSheet(BuildContext context, Order order, Function(String, OrderStatus) onPaymentComplete) {
   showModalBottomSheet(
@@ -18,14 +40,53 @@ class OrdersPage extends StatefulWidget {
   const OrdersPage({super.key});
 
   @override
-  State<OrdersPage> createState() => _OrdersPageState();
+  State<OrdersPage> createState() => OrdersPageState();
 }
 
-class _OrdersPageState extends State<OrdersPage> {
+class OrdersPageState extends State<OrdersPage> { // Class State Publik
   
-  List<Order> _ordersList = initialOrdersList;
+  List<Order> _ordersList = [];
+  bool _isLoadingOrders = true; 
   
   final double _shippingFee = 17500;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadOrders();
+  }
+  
+  // --- FUNGSI SHARED PREFERENCES: LOAD & SAVE ---
+  Future<void> _loadOrders() async {
+    final prefs = await SharedPreferences.getInstance();
+    final String? ordersJsonString = prefs.getString(_ordersKey);
+    
+    if (ordersJsonString != null) {
+      final List<dynamic> ordersJson = jsonDecode(ordersJsonString);
+      setState(() {
+        if(ordersJson.isEmpty) {
+             _ordersList = initialOrdersList;
+        } else {
+             _ordersList = ordersJson.map((json) => Order.fromJson(json)).toList();
+        }
+        _isLoadingOrders = false;
+      });
+    } else {
+       setState(() {
+        _ordersList = initialOrdersList;
+        _isLoadingOrders = false;
+      });
+    }
+    _saveOrders();
+  }
+
+  Future<void> _saveOrders() async {
+    final prefs = await SharedPreferences.getInstance();
+    final List<Map<String, dynamic>> ordersJson = 
+        _ordersList.map((order) => order.toJson()).toList();
+    await prefs.setString(_ordersKey, jsonEncode(ordersJson));
+  }
+
 
   void _updateOrderStatus(String orderId, OrderStatus newStatus) {
     setState(() {
@@ -33,38 +94,114 @@ class _OrdersPageState extends State<OrdersPage> {
       if (index != -1) {
         _ordersList[index] = Order(
           id: _ordersList[index].id,
-          status: newStatus,
+          status: newStatus, 
           items: _ordersList[index].items,
           totalPrice: _ordersList[index].totalPrice,
+          creationTimeMillis: _ordersList[index].creationTimeMillis, 
         );
+        _saveOrders(); // Simpan perubahan status
       }
     });
   }
+  
+  // --- Fungsi untuk menambahkan pesanan baru (PUBLIK & ASYNC) ---
+  void addNewOrder(Order newOrder) async { 
+    final finalOrder = Order(
+      id: _generateNewOrderId(_ordersList),
+      status: newOrder.status,
+      items: newOrder.items,
+      totalPrice: newOrder.totalPrice,
+      creationTimeMillis: DateTime.now().millisecondsSinceEpoch, 
+    );
+    setState(() {
+      _ordersList.insert(0, finalOrder); 
+    });
+    _saveOrders(); 
+
+    // Pindah ke tab Payment
+    DefaultTabController.of(context).animateTo(0);
+    
+    // 1. PUSH ke OrderDetailPage dan TUNGGU hasilnya (paidOrderId)
+    final paidOrderId = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => OrderDetailPage(
+          order: finalOrder,
+          shippingFee: _shippingFee,
+          onPaymentComplete: _updateOrderStatus, 
+        ),
+      ),
+    );
+
+    // 2. Setelah pembayaran selesai (paidOrderId diterima):
+    if (paidOrderId is String && mounted) {
+      
+      final paidOrder = _ordersList.firstWhere((o) => o.id == paidOrderId);
+      
+      // 3. Langsung push ke OrderScreen untuk memulai countdown
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => OrderScreen(
+                  placeName: 'Restoran Pilihan Anda', 
+                  initialOrder: paidOrder, 
+                  onOrderCompleted: (completedOrder) {
+                      // Callback untuk status completed
+                      _updateOrderStatus(completedOrder.id, OrderStatus.completed);
+                  }
+              )
+          )
+      );
+    }
+  }
 
   Widget _buildOrderList(BuildContext context, List<Order> orders) {
+    if (_isLoadingOrders) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    
     if (orders.isEmpty) {
       return const Center(child: Text('No Orders.'));
     }
+    
+    orders.sort((a, b) => b.creationTimeMillis.compareTo(a.creationTimeMillis));
+
     return ListView.builder(
       itemCount: orders.length,
       itemBuilder: (context, index) {
         final Order order = orders[index];
         final bool isPending = order.status == OrderStatus.pending;
+        final bool isDelivery = order.status == OrderStatus.onDelivery;
 
         return Card(
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: ListTile(
             onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => OrderDetailPage(
-                    order: order,
-                    shippingFee: _shippingFee,
-                    onPaymentComplete: _updateOrderStatus, 
+              if (isDelivery) {
+                 Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => OrderScreen(
+                      placeName: 'Restoran Pilihan Anda', 
+                      initialOrder: order,
+                      onOrderCompleted: (completedOrder) {
+                        _updateOrderStatus(completedOrder.id, OrderStatus.completed);
+                      },
+                    ),
                   ),
-                ),
-              );
+                );
+              } else {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => OrderDetailPage(
+                      order: order,
+                      shippingFee: _shippingFee,
+                      onPaymentComplete: _updateOrderStatus, 
+                    ),
+                  ),
+                );
+              }
             },
             title: Text('ID: ${order.id}'),
             subtitle: Column(
@@ -142,7 +279,6 @@ class OrderDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool isPending = order.status == OrderStatus.pending;
     final double finalPrice = order.totalPrice + shippingFee; 
 
     return Scaffold(
@@ -201,7 +337,7 @@ class OrderDetailPage extends StatelessWidget {
             ),
           ),
           
-          if (isPending)
+          if (order.status == OrderStatus.pending) 
             Container(
               padding: const EdgeInsets.all(16.0),
               decoration: const BoxDecoration(
@@ -217,7 +353,7 @@ class OrderDetailPage extends StatelessWidget {
                       order, 
                       
                       (orderId, newStatus) {
-                        Navigator.pop(context); 
+                        Navigator.pop(context); // Tutup Detail Page
                         onPaymentComplete(orderId, newStatus); 
                       }
                     );
@@ -339,15 +475,15 @@ class _PaymentMethodSelectionSheetState extends State<PaymentMethodSelectionShee
             child: SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () {
+                onPressed: () async { // <-- HARUS ASYNC
                   
-                  Navigator.pop(context); 
+                  Navigator.pop(context); // Tutup Payment Sheet
                   
-                  
+                  // 1. Perbarui status pesanan menjadi 'onDelivery' (tersimpan di shared_prefs)
                   widget.onPaymentComplete(widget.order.id, OrderStatus.onDelivery);
                   
-                  
-                  Navigator.push(
+                  // 2. PUSH PaymentSuccessPage dan KEMBALIKAN ID order
+                  final resultOrderId = await Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => PaymentSuccessPage(
@@ -357,6 +493,13 @@ class _PaymentMethodSelectionSheetState extends State<PaymentMethodSelectionShee
                       ),
                     ),
                   );
+                  
+                  // 3. POP OrderDetailPage dan kirim ID order yang baru dibayar kembali ke addNewOrder
+                  if (resultOrderId is String) {
+                    Navigator.pop(context, resultOrderId); 
+                  } else {
+                    Navigator.pop(context);
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
@@ -375,6 +518,7 @@ class _PaymentMethodSelectionSheetState extends State<PaymentMethodSelectionShee
     );
   }
 }
+
 
 class PaymentSuccessPage extends StatelessWidget {
   final Order order;
@@ -418,10 +562,10 @@ class PaymentSuccessPage extends StatelessWidget {
               const SizedBox(height: 40),
               ElevatedButton(
                 onPressed: () {
-                  
-                  Navigator.popUntil(context, (route) => route.isFirst); 
+                  // Pop PaymentSuccessPage dan kirim ID order
+                  Navigator.pop(context, order.id); 
                 },
-                child: const Text('Back to Orders History'),
+                child: const Text('Mulai Pick Up Order'),
               ),
             ],
           ),
