@@ -72,11 +72,11 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
         children: [
           const SizedBox(height: 10),
           _buildSectionHeader("E-Wallets"),
-          ..._eWallets.map((method) => _buildPaymentTile(method)).toList(),
+          ..._eWallets.map((method) => _buildPaymentTile(method)),
           
           const SizedBox(height: 10),
           _buildSectionHeader("Cards & Other Methods"),
-          ..._otherMethods.map((method) => _buildPaymentTile(method)).toList(),
+          ..._otherMethods.map((method) => _buildPaymentTile(method)),
           
           // --- NEW: Add this as a list tile ---
           _buildAddCardTile(), // Call the new widget here

@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:geolocator/geolocator.dart';
 import '../models/restaurant.dart';
 
 class SearchService {
