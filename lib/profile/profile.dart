@@ -59,7 +59,7 @@ class _ProfilePageState extends State<ProfilePage> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text(
-          'Hi, ${_userName}!',
+          'Hi, $_userName!',
           style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.white,

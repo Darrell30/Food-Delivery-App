@@ -15,7 +15,7 @@ class _SearchScreenState extends State<SearchScreen> {
   final SearchService _searchService = SearchService();
   List<Restaurant> _searchResults = [];
   bool _isLoading = false;
-  bool _isSearching = false;
+  final bool _isSearching = false;
 
   @override
   void initState() {
