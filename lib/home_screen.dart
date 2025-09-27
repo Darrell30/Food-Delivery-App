@@ -34,7 +34,7 @@ class _HomeScreenState extends State<HomeScreen> {
         elevation: 0,
         backgroundColor: Colors.white,
 
-        // ikon untuk ke profile
+        // ikon button untuk ke profile screen
         leading: IconButton(
           icon: const Icon(Icons.account_circle, color: Colors.black),
           onPressed: () {
@@ -45,7 +45,7 @@ class _HomeScreenState extends State<HomeScreen> {
           },
         ),
 
-        // ikon untuk ke map screen
+        // ikon button untuk ke map screen
         title: InkWell(
           onTap: () async {
             final newAddress = await Navigator.push(
@@ -143,7 +143,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           const SizedBox(height: 20),
 
-          // 🔹 Section: Order Within Vicinity
           const SectionTitle(title: "Order Within Vicinity"),
           const SizedBox(height: 10),
           Row(
