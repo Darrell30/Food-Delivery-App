@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'map_screen.dart'; 
+import 'package:shared_preferences/shared_preferences.dart';
+import 'map_screen.dart';
 import 'screens/payment_methods_screen.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -10,18 +11,34 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  String _userName = "Slushy"; // Default name
-  late final TextEditingController _nameController;
-  bool _isEditing = false;
+  String _userName = "Enter Your Name";
   String _currentAddress = "Set my address";
 
-  // Using the accent color from your HomeScreen
+  late final TextEditingController _nameController;
+  bool _isEditing = false;
+
   static const Color accentColor = Color.fromRGBO(39, 0, 197, 1);
 
   @override
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: _userName);
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    setState(() {
+      _userName = prefs.getString('userName') ?? 'Enter Your Name';
+      _currentAddress = prefs.getString('userAddress') ?? 'Set my address';
+      _nameController.text = _userName;
+    });
+  }
+
+  Future<void> _saveData(String key, String value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(key, value);
   }
 
   void _toggleEdit() {
@@ -29,6 +46,7 @@ class _ProfilePageState extends State<ProfilePage> {
       if (_isEditing) {
         _userName = _nameController.text;
         FocusScope.of(context).unfocus();
+        _saveData('userName', _userName);
       }
       _isEditing = !_isEditing;
     });
@@ -43,8 +61,22 @@ class _ProfilePageState extends State<ProfilePage> {
     if (result != null && result is String) {
       setState(() {
         _currentAddress = result;
+        _saveData('userAddress', _currentAddress);
       });
     }
+  }
+
+  // --- NEW: Reusable function to show a SnackBar ---
+  void _showSnackBar(String message) {
+    // Hide any existing SnackBars
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    // Show the new one
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        duration: const Duration(seconds: 2),
+      ),
+    );
   }
 
   @override
@@ -92,18 +124,21 @@ class _ProfilePageState extends State<ProfilePage> {
           _buildMenuListItem(
             icon: Icons.security_outlined,
             title: "Account Security",
-            onTap: () {},
+            // Updated onTap
+            onTap: () => _showSnackBar("You clicked Account Security"),
           ),
           const Divider(),
           _buildMenuListItem(
             icon: Icons.help_outline,
             title: "Help Center",
-            onTap: () {},
+            // Updated onTap
+            onTap: () => _showSnackBar("You clicked Help Center"),
           ),
           _buildMenuListItem(
             icon: Icons.info_outline,
             title: "About",
-            onTap: () {},
+            // Updated onTap
+            onTap: () => _showSnackBar("You clicked About"),
           ),
           const SizedBox(height: 30),
           _buildLogoutButton(),
@@ -112,7 +147,6 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  // Header widget styled like HomeScreen
   Widget _buildHeader() {
     return Row(
       children: [
@@ -149,7 +183,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
               const SizedBox(height: 4),
               Text(
-                "slushy@email.com", // Placeholder email
+                "example@email.com", // Placeholder email
                 style: TextStyle(fontSize: 14, color: Colors.grey[600]),
               ),
             ],
@@ -166,7 +200,6 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  // A cleaner list item to match the new style
   Widget _buildMenuListItem({
     required IconData icon,
     required String title,
@@ -208,12 +241,10 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  // Logout button styled with the red accent color
   Widget _buildLogoutButton() {
     return TextButton(
-      onPressed: () {
-        // Handle logout logic
-      },
+      // Updated onPressed
+      onPressed: () => _showSnackBar("You clicked Log Out"),
       child: const Text(
         "Log Out",
         style: TextStyle(

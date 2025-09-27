@@ -13,7 +13,7 @@ class MapScreen extends StatefulWidget {
 
 class _MapScreenState extends State<MapScreen> {
   static const _initialCameraPosition = CameraPosition(
-    target: LatLng(-6.2088, 106.8456), // Jakarta
+    target: LatLng(-6.2088, 106.8456),
     zoom: 14.0,
   );
 
@@ -125,7 +125,6 @@ class _MapScreenState extends State<MapScreen> {
                       final address =
                           await _getAddressFromLatLng(_pickedLocation!);
 
-                      // ✅ Simpan ke SharedPreferences
                       await _saveAddress(address);
 
                       if (mounted) {
