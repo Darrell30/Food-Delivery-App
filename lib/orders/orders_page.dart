@@ -416,7 +416,7 @@ class PaymentSuccessPage extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 10),
-              Text('Total Payment: Rp ${amount.toStringAsFixed(0)}'),
+              Text('Payment Total: Rp ${amount.toStringAsFixed(0)}'),
               Text('Payment Method: $paymentMethod'),
               const SizedBox(height: 40),
               ElevatedButton(
