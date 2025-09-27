@@ -61,7 +61,7 @@ class _OrdersPageState extends State<OrdersPage> {
                   builder: (context) => OrderDetailPage(
                     order: order,
                     shippingFee: _shippingFee,
-                    onPaymentComplete: _updateOrderStatus, // Pass the callback here too
+                    onPaymentComplete: _updateOrderStatus, 
                   ),
                 ),
               );
@@ -132,12 +132,12 @@ class _OrdersPageState extends State<OrdersPage> {
 class OrderDetailPage extends StatelessWidget {
   final Order order;
   final double shippingFee;
-  final Function(String, OrderStatus) onPaymentComplete; // Tambahkan callback
+  final Function(String, OrderStatus) onPaymentComplete; 
   const OrderDetailPage({
     super.key, 
     required this.order, 
     required this.shippingFee,
-    required this.onPaymentComplete, // Inisialisasi callback
+    required this.onPaymentComplete, 
   });
 
   @override
@@ -212,15 +212,12 @@ class OrderDetailPage extends StatelessWidget {
                 width: double.infinity,
                 child: ElevatedButton.icon(
                   onPressed: () {
-                    // Panggil bottom sheet seperti di OrdersPage
                     _showPaymentSheet(
                       context, 
                       order, 
-                      // Callback akan menjalankan navigasi dan update status
+                      
                       (orderId, newStatus) {
-                        // 1. Tutup OrderDetailPage (agar kembali ke OrdersPage)
                         Navigator.pop(context); 
-                        // 2. Lanjutkan dengan callback asli (update status dan navigate ke success)
                         onPaymentComplete(orderId, newStatus); 
                       }
                     );
@@ -416,7 +413,7 @@ class PaymentSuccessPage extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 10),
-              Text('Payment Total: Rp ${amount.toStringAsFixed(0)}'),
+              Text('Total Payment: Rp ${amount.toStringAsFixed(0)}'),
               Text('Payment Method: $paymentMethod'),
               const SizedBox(height: 40),
               ElevatedButton(
