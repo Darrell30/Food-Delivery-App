@@ -1,7 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../profile/profile.dart';
+import '../profile/map_screen.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  String _address = "Set your address"; // default alamat
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAddress();
+  }
+
+  Future<void> _loadAddress() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _address = prefs.getString('user_address') ?? "Set your address";
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -10,33 +33,68 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.white,
-        leading: const Icon(Icons.account_circle, color: Colors.black),
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
-            Text(
-              "DELIVERING TO",
-              style: TextStyle(fontSize: 12, color: Color.fromRGBO(39, 0, 197, 1)),
-            ),
-            Text(
-              "1122 Street Ave",
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
+
+        // ikon button untuk ke profile screen
+        leading: IconButton(
+          icon: const Icon(Icons.account_circle, color: Colors.black),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ProfilePage()),
+            );
+          },
         ),
+
+        // ikon button untuk ke map screen
+        title: InkWell(
+          onTap: () async {
+            final newAddress = await Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const MapScreen()),
+            );
+
+            if (newAddress != null && newAddress is String) {
+              setState(() {
+                _address = newAddress;
+              });
+
+              final prefs = await SharedPreferences.getInstance();
+              await prefs.setString('user_address', newAddress);
+            }
+          },
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                "DELIVERING TO",
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Color.fromRGBO(39, 0, 197, 1),
+                ),
+              ),
+              Text(
+                _address,
+                style: const TextStyle(
+                  fontSize: 16,
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+        ),
+
         actions: const [
           Icon(Icons.keyboard_arrow_down, color: Colors.black),
           SizedBox(width: 10),
         ],
       ),
+
+      // isi body
       body: ListView(
         padding: const EdgeInsets.all(10),
         children: [
-          // 🔹 kategori (scroll horizontal)
           SizedBox(
             height: 80,
             child: ListView(
@@ -52,7 +110,6 @@ class HomeScreen extends StatelessWidget {
           ),
           const SizedBox(height: 15),
 
-          // 🔹 filter (scroll horizontal)
           SizedBox(
             height: 40,
             child: ListView(
@@ -70,7 +127,6 @@ class HomeScreen extends StatelessWidget {
           ),
           const SizedBox(height: 15),
 
-          // 🔹 Banner promo
           Container(
             height: 120,
             decoration: BoxDecoration(
@@ -87,35 +143,44 @@ class HomeScreen extends StatelessWidget {
           ),
           const SizedBox(height: 20),
 
-          // 🔹 Section: Order Within Vicinity
           const SectionTitle(title: "Order Within Vicinity"),
           const SizedBox(height: 10),
           Row(
             children: const [
               Expanded(
-                  child: ProductCard(
-                      name: "Smart & Final",
-                      subtitle: "47 min • \$3.99 delivery")),
+                child: ProductCard(
+                  name: "Smart & Final",
+                  subtitle: "47 min • \$3.99 delivery",
+                ),
+              ),
               SizedBox(width: 10),
               Expanded(
-                  child: ProductCard(
-                      name: "7-Eleven", subtitle: "29 min • \$2.99 delivery")),
+                child: ProductCard(
+                  name: "7-Eleven",
+                  subtitle: "29 min • \$2.99 delivery",
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 20),
 
-          // 🔹 Section: Special Offers
           const SectionTitle(title: "Special Offers for You"),
           const SizedBox(height: 10),
           Row(
             children: const [
               Expanded(
-                  child: ProductCard(
-                      name: "Ramen House", subtitle: "Free delivery")),
+                child: ProductCard(
+                  name: "Ramen House",
+                  subtitle: "Free delivery",
+                ),
+              ),
               SizedBox(width: 10),
               Expanded(
-                  child: ProductCard(
-                      name: "Sushi World", subtitle: "20% OFF")),
+                child: ProductCard(
+                  name: "Sushi World",
+                  subtitle: "20% OFF",
+                ),
+              ),
             ],
           ),
         ],
@@ -161,7 +226,8 @@ class SectionTitle extends StatelessWidget {
       children: [
         Text(title,
             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-        const Text("See All", style: TextStyle(color: Color.fromRGBO(39, 0, 197, 1))),
+        const Text("See All",
+            style: TextStyle(color: Color.fromRGBO(39, 0, 197, 1))),
       ],
     );
   }
@@ -194,8 +260,10 @@ class ProductCard extends StatelessWidget {
             ),
             const SizedBox(height: 5),
             Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
-            Text(subtitle,
-                style: const TextStyle(color: Colors.grey, fontSize: 12)),
+            Text(
+              subtitle,
+              style: const TextStyle(color: Colors.grey, fontSize: 12),
+            ),
           ],
         ),
       ),

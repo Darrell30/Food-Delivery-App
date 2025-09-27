@@ -137,7 +137,7 @@ class _MapScreenState extends State<MapScreen> {
                     const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
               ),
               child: const Text(
-                'Confirm This Address',
+                'Confirm Location',
                 style: TextStyle(fontSize: 16, color: Colors.white),
               ),
             ),
