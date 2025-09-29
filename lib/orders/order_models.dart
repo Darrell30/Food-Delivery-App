@@ -5,13 +5,35 @@ class Order {
   final OrderStatus status;
   final List<String> items;
   final double totalPrice;
+  final int creationTimeMillis; 
 
   Order({
     required this.id,
     required this.status,
     required this.items,
     required this.totalPrice,
+    required this.creationTimeMillis, 
   });
+
+  factory Order.fromJson(Map<String, dynamic> json) {
+    return Order(
+      id: json['id'] as String,
+      status: OrderStatus.values.firstWhere((e) => e.toString() == 'OrderStatus.${json['status']}'),
+      items: (json['items'] as List).map((i) => i.toString()).toList(),
+      totalPrice: json['totalPrice'] as double,
+      creationTimeMillis: json['creationTimeMillis'] as int,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'status': status.name, 
+      'items': items,
+      'totalPrice': totalPrice,
+      'creationTimeMillis': creationTimeMillis,
+    };
+  }
 }
 
 final List<Order> initialOrdersList = [
@@ -20,29 +42,20 @@ final List<Order> initialOrdersList = [
     status: OrderStatus.completed,
     items: ['Pizza', 'Cola'],
     totalPrice: 150000,
+    creationTimeMillis: DateTime.now().millisecondsSinceEpoch - 600000, 
   ),
   Order(
     id: 'ORD002',
     status: OrderStatus.onDelivery,
     items: ['Burger'],
     totalPrice: 75000,
-  ),
-  Order(
-    id: 'ORD003',
-    status: OrderStatus.pending, 
-    items: ['Fried Chicken', 'Rice'],
-    totalPrice: 85000,
+    creationTimeMillis: DateTime.now().millisecondsSinceEpoch - 60000,
   ),
   Order(
     id: 'ORD004',
     status: OrderStatus.completed,
     items: ['Noodles', 'Ice Tea'],
     totalPrice: 60000,
-  ),
-  Order(
-    id: 'ORD005',
-    status: OrderStatus.pending,
-    items: ['Milk Tea', 'Waffle'],
-    totalPrice: 35000,
+    creationTimeMillis: DateTime.now().millisecondsSinceEpoch - 1200000,
   ),
 ];
