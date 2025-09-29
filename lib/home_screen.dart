@@ -1,51 +1,39 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
+import '../user_data.dart'; // Make sure this path is correct
 import '../profile/profile.dart';
 import '../profile/map_screen.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  String _address = "Set your address"; // default alamat
-
-  @override
-  void initState() {
-    super.initState();
-    _loadAddress();
-  }
-
-  Future<void> _loadAddress() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _address = prefs.getString('user_address') ?? "Set your address";
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final userData = context.watch<UserData>();
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.white,
-
-        // ikon button untuk ke profile screen
         leading: IconButton(
-          icon: const Icon(Icons.account_circle, color: Colors.black),
+          icon: CircleAvatar(
+            backgroundColor: const Color(0xFFF3F3F3),
+            backgroundImage: userData.profileImagePath.isNotEmpty
+                ? FileImage(File(userData.profileImagePath))
+                : null,
+            child: userData.profileImagePath.isEmpty
+                ? const Icon(Icons.person, color: Colors.black54)
+                : null,
+          ),
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (_) => const ProfilePage()),
+              MaterialPageRoute(builder: (context) => const ProfilePage()),
             );
           },
         ),
-
-        // ikon button untuk ke map screen
         title: InkWell(
           onTap: () async {
             final newAddress = await Navigator.push(
@@ -54,12 +42,7 @@ class _HomeScreenState extends State<HomeScreen> {
             );
 
             if (newAddress != null && newAddress is String) {
-              setState(() {
-                _address = newAddress;
-              });
-
-              final prefs = await SharedPreferences.getInstance();
-              await prefs.setString('user_address', newAddress);
+              context.read<UserData>().updateUserAddress(newAddress);
             }
           },
           child: Column(
@@ -73,7 +56,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               Text(
-                _address,
+                userData.userAddress,
                 style: const TextStyle(
                   fontSize: 16,
                   color: Colors.black,
@@ -84,17 +67,15 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
         ),
-
         actions: const [
           Icon(Icons.keyboard_arrow_down, color: Colors.black),
           SizedBox(width: 10),
         ],
       ),
-
-      // isi body
       body: ListView(
         padding: const EdgeInsets.all(10),
         children: [
+          // 🔹 kategori (scroll horizontal)
           SizedBox(
             height: 80,
             child: ListView(
@@ -110,6 +91,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           const SizedBox(height: 15),
 
+          // filter
           SizedBox(
             height: 40,
             child: ListView(
@@ -127,6 +109,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           const SizedBox(height: 15),
 
+          // promo banner
           Container(
             height: 120,
             decoration: BoxDecoration(
@@ -148,39 +131,29 @@ class _HomeScreenState extends State<HomeScreen> {
           Row(
             children: const [
               Expanded(
-                child: ProductCard(
-                  name: "Smart & Final",
-                  subtitle: "47 min • \$3.99 delivery",
-                ),
-              ),
+                  child: ProductCard(
+                      name: "Smart & Final",
+                      subtitle: "47 min • \$3.99 delivery")),
               SizedBox(width: 10),
               Expanded(
-                child: ProductCard(
-                  name: "7-Eleven",
-                  subtitle: "29 min • \$2.99 delivery",
-                ),
-              ),
+                  child: ProductCard(
+                      name: "7-Eleven", subtitle: "29 min • \$2.99 delivery")),
             ],
           ),
           const SizedBox(height: 20),
 
+          // Special Offers
           const SectionTitle(title: "Special Offers for You"),
           const SizedBox(height: 10),
           Row(
             children: const [
               Expanded(
-                child: ProductCard(
-                  name: "Ramen House",
-                  subtitle: "Free delivery",
-                ),
-              ),
+                  child: ProductCard(
+                      name: "Ramen House", subtitle: "Free delivery")),
               SizedBox(width: 10),
               Expanded(
-                child: ProductCard(
-                  name: "Sushi World",
-                  subtitle: "20% OFF",
-                ),
-              ),
+                  child: ProductCard(
+                      name: "Sushi World", subtitle: "20% OFF")),
             ],
           ),
         ],

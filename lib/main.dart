@@ -1,12 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'user_data.dart';
 import 'home_screen.dart';
 import 'screens/pickup_screen.dart';
 import 'orders/orders_page.dart';
-import 'Search/search_screen.dart';                  
+import 'Search/search_screen.dart';
 import 'profile/profile.dart';
 
-void main() { 
-  runApp(const FoodDeliveryApp());
+void main() {
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => UserData(),
+      child: const FoodDeliveryApp(),
+    ),
+  );
 }
 
 class FoodDeliveryApp extends StatelessWidget {
@@ -54,10 +61,13 @@ class _MainPageState extends State<MainPage> {
         return true;
       },
       child: Scaffold(
-        body: _screens[_currentIndex],  
+        body: IndexedStack(
+          index: _currentIndex,
+          children: _screens,
+        ),
         bottomNavigationBar: BottomNavigationBar(
           currentIndex: _currentIndex,
-          selectedItemColor: Color.fromRGBO(39, 0, 197, 1),
+          selectedItemColor: const Color.fromRGBO(39, 0, 197, 1),
           unselectedItemColor: Colors.grey,
           type: BottomNavigationBarType.fixed,
           onTap: (index) {
@@ -67,11 +77,11 @@ class _MainPageState extends State<MainPage> {
           },
           items: const [
             BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-            BottomNavigationBarItem(icon: Icon(Icons.store_mall_directory), label: "Pickup"),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.store_mall_directory), label: "Pickup"),
             BottomNavigationBarItem(icon: Icon(Icons.receipt), label: "Orders"),
             BottomNavigationBarItem(icon: Icon(Icons.search), label: "Search"),
             BottomNavigationBarItem(icon: Icon(Icons.person), label: 'You'),
-            
           ],
         ),
       ),
