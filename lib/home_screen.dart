@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../user_data.dart'; // Make sure this path is correct
+import '../user_data.dart';
 import '../profile/profile.dart';
 import '../profile/map_screen.dart';
 
@@ -56,7 +56,9 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
               Text(
-                userData.userAddress,
+                userData.userAddress.isNotEmpty
+                    ? userData.userAddress
+                    : "Set your address",
                 style: const TextStyle(
                   fontSize: 16,
                   color: Colors.black,
@@ -84,14 +86,14 @@ class HomeScreen extends StatelessWidget {
                 CategoryItem(icon: Icons.local_grocery_store, label: "Convenience"),
                 CategoryItem(icon: Icons.fastfood, label: "Fast Food"),
                 CategoryItem(icon: Icons.lunch_dining, label: "Burgers"),
-                CategoryItem(icon: Icons.set_meal, label: "Chicken"),
+                CategoryItem(icon: Icons.set_meal, label: "Fish & Chips"),
                 CategoryItem(icon: Icons.ramen_dining, label: "Asian"),
               ],
             ),
           ),
           const SizedBox(height: 15),
 
-          // filter
+          // 🔹 filter (scroll horizontal)
           SizedBox(
             height: 40,
             child: ListView(
@@ -109,7 +111,7 @@ class HomeScreen extends StatelessWidget {
           ),
           const SizedBox(height: 15),
 
-          // promo banner
+          // 🔹 Banner promo
           Container(
             height: 120,
             decoration: BoxDecoration(
@@ -126,34 +128,50 @@ class HomeScreen extends StatelessWidget {
           ),
           const SizedBox(height: 20),
 
+          // 🔹 Section: Order Within Vicinity
           const SectionTitle(title: "Order Within Vicinity"),
           const SizedBox(height: 10),
           Row(
             children: const [
               Expanded(
-                  child: ProductCard(
-                      name: "Smart & Final",
-                      subtitle: "47 min • \$3.99 delivery")),
+                child: ProductCard(
+                  name: "Burger King",
+                  subtitle: "47 min • \$3.99 delivery",
+                  imagePath: "assets/icons/burger.jpg", 
+                ),
+              ),
               SizedBox(width: 10),
               Expanded(
-                  child: ProductCard(
-                      name: "7-Eleven", subtitle: "29 min • \$2.99 delivery")),
+                child: ProductCard(
+                  name: "7-Eleven",
+                  subtitle: "29 min • \$2.99 delivery",
+                  imagePath: "assets/icons/seven-eleven.png", // pakai assets
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 20),
 
-          // Special Offers
+          // 🔹 Section: Special Offers
           const SectionTitle(title: "Special Offers for You"),
           const SizedBox(height: 10),
           Row(
             children: const [
               Expanded(
-                  child: ProductCard(
-                      name: "Ramen House", subtitle: "Free delivery")),
+                child: ProductCard(
+                  name: "Ramen House",
+                  subtitle: "Free delivery",
+                  imagePath: "assets/icons/Ramen.jpeg", // pakai assets
+                ),
+              ),
               SizedBox(width: 10),
               Expanded(
-                  child: ProductCard(
-                      name: "Sushi World", subtitle: "20% OFF")),
+                child: ProductCard(
+                  name: "Sushi World",
+                  subtitle: "20% OFF",
+                  imagePath: "assets/icons/Sushi.jpeg", // pakai assets
+                ),
+              ),
             ],
           ),
         ],
@@ -209,13 +227,19 @@ class SectionTitle extends StatelessWidget {
 class ProductCard extends StatelessWidget {
   final String name;
   final String subtitle;
+  final String imagePath;
 
-  const ProductCard({super.key, required this.name, required this.subtitle});
+  const ProductCard({
+    super.key,
+    required this.name,
+    required this.subtitle,
+    required this.imagePath,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 150,
+      height: 180,
       decoration: BoxDecoration(
         color: Colors.grey[200],
         borderRadius: BorderRadius.circular(10),
@@ -226,9 +250,13 @@ class ProductCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
-              child: Container(
-                color: Colors.white,
-                child: const Center(child: Icon(Icons.image, size: 40)),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.asset(
+                  imagePath,
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                ),
               ),
             ),
             const SizedBox(height: 5),
