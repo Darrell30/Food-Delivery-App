@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
-import '../user_data.dart'; 
+import '../user_data.dart';
 import 'map_screen.dart';
 import 'screens/balance_screen.dart';
 
@@ -105,7 +105,7 @@ class _ProfilePageState extends State<ProfilePage> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text(
-          'Hi, ${userData.userName}!',
+          _isEditing ? 'Hi, ${_nameController.text}!' : 'Hi, ${userData.userName}!',
           style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.white,
@@ -130,6 +130,12 @@ class _ProfilePageState extends State<ProfilePage> {
             },
           ),
           _buildMenuListItem(
+            icon: Icons.location_on_outlined,
+            title: "Address",
+            subtitle: userData.userAddress,
+            onTap: _navigateToMapScreen,
+          ),
+          _buildMenuListItem(
             icon: Icons.history_outlined,
             title: "Order History",
             onTap: () {
@@ -138,12 +144,6 @@ class _ProfilePageState extends State<ProfilePage> {
                 MaterialPageRoute(builder: (context) => const Placeholder()),
               );
             },
-          ),
-          _buildMenuListItem(
-            icon: Icons.location_on_outlined,
-            title: "Addresses",
-            subtitle: userData.userAddress,
-            onTap: _navigateToMapScreen,
           ),
           _buildMenuListItem(
             icon: Icons.security_outlined,
@@ -193,7 +193,9 @@ class _ProfilePageState extends State<ProfilePage> {
                   ? TextField(
                       controller: _nameController,
                       autofocus: true,
-                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      onChanged: (value) => setState(() {}),
+                      style: const TextStyle(
+                          fontSize: 20, fontWeight: FontWeight.bold),
                       decoration: const InputDecoration(
                           isDense: true,
                           contentPadding: EdgeInsets.zero,
@@ -243,7 +245,8 @@ class _ProfilePageState extends State<ProfilePage> {
                     Text(subtitle,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(color: Colors.grey[600], fontSize: 12)),
+                        style:
+                            TextStyle(color: Colors.grey[600], fontSize: 12)),
                   ],
                 ],
               ),
