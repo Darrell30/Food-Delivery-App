@@ -1,11 +1,9 @@
 import 'package:food_delivery_app/models/order_model.dart';
 import 'package:food_delivery_app/models/menu_item.dart';
 
-// Kelas ini akan kita gunakan untuk mengelola state pesanan di seluruh aplikasi
 class OrderService {
-  // 'static' berarti variabel ini hanya ada satu dan bisa diakses dari mana saja
+
   static final List<OrderModel> _orderHistory = [
-    // Data dummy awal agar daftar tidak kosong saat pertama kali dibuka
     OrderModel(
       orderId: 'FD12345',
       restaurantName: 'Burger Queen',
@@ -21,17 +19,15 @@ class OrderService {
           quantity: 1,
         ),
       ],
+      status: 'Selesai',
     ),
   ];
 
-  // Fungsi untuk mendapatkan semua data riwayat pesanan
   static List<OrderModel> getOrderHistory() {
     return _orderHistory;
   }
 
-  // Fungsi untuk menambahkan pesanan baru ke dalam daftar riwayat
   static void addOrder(OrderModel order) {
-    // Menambahkan pesanan baru di posisi paling atas (agar tampil sebagai yang terbaru)
     _orderHistory.insert(0, order);
   }
 }

@@ -1,16 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'user_data.dart';
-import 'home_screen.dart';
-import 'screens/pickup_screen.dart';
-import 'orders/orders_page.dart';
-import 'Search/search_screen.dart';
-import 'profile/profile.dart';
+import 'package:food_delivery_app/providers/tab_provider.dart';
+import 'package:food_delivery_app/providers/order_provider.dart';
+import 'package:food_delivery_app/user_data.dart';
+import 'package:food_delivery_app/home_screen.dart';
+import 'package:food_delivery_app/screens/pickup_screen.dart';
+import 'package:food_delivery_app/orders/orders_page.dart';
+import 'package:food_delivery_app/Search/search_screen.dart';
+import 'package:food_delivery_app/profile/profile.dart';
 
 void main() {
   runApp(
-    ChangeNotifierProvider(
-      create: (context) => UserData(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => UserData()),
+        ChangeNotifierProvider(create: (context) => TabProvider()),
+        ChangeNotifierProvider(create: (context) => OrderProvider()),
+      ],
       child: const FoodDeliveryApp(),
     ),
   );
@@ -30,60 +36,41 @@ class FoodDeliveryApp extends StatelessWidget {
   }
 }
 
-class MainPage extends StatefulWidget {
+class MainPage extends StatelessWidget {
   const MainPage({super.key});
 
   @override
-  State<MainPage> createState() => _MainPageState();
-}
-
-class _MainPageState extends State<MainPage> {
-  int _currentIndex = 0;
-
-  final List<Widget> _screens = const [
-    HomeScreen(),
-    PickUpScreen(),
-    OrdersPage(),
-    SearchScreen(),
-    ProfilePage(),
-  ];
-
-  @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        if (_currentIndex != 0) {
-          setState(() {
-            _currentIndex = 0;
-          });
-          return false;
-        }
-        return true;
-      },
-      child: Scaffold(
-        body: IndexedStack(
-          index: _currentIndex,
-          children: _screens,
-        ),
-        bottomNavigationBar: BottomNavigationBar(
-          currentIndex: _currentIndex,
-          selectedItemColor: const Color.fromRGBO(39, 0, 197, 1),
-          unselectedItemColor: Colors.grey,
-          type: BottomNavigationBarType.fixed,
-          onTap: (index) {
-            setState(() {
-              _currentIndex = index;
-            });
-          },
-          items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-            BottomNavigationBarItem(
-                icon: Icon(Icons.store_mall_directory), label: "Pickup"),
-            BottomNavigationBarItem(icon: Icon(Icons.receipt), label: "Orders"),
-            BottomNavigationBarItem(icon: Icon(Icons.search), label: "Search"),
-            BottomNavigationBarItem(icon: Icon(Icons.person), label: 'You'),
-          ],
-        ),
+    final tabProvider = Provider.of<TabProvider>(context);
+
+    final List<Widget> screens = const [
+      HomeScreen(),
+      PickUpScreen(),
+      OrdersPage(),
+      SearchScreen(),
+      ProfilePage(),
+    ];
+
+    return Scaffold(
+      body: IndexedStack(
+        index: tabProvider.currentIndex,
+        children: screens,
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: tabProvider.currentIndex,
+        selectedItemColor: const Color.fromRGBO(39, 0, 197, 1),
+        unselectedItemColor: Colors.grey,
+        type: BottomNavigationBarType.fixed,
+        onTap: (index) {
+          Provider.of<TabProvider>(context, listen: false).changeTab(index);
+        },
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
+          BottomNavigationBarItem(icon: Icon(Icons.store_mall_directory), label: "Pickup"),
+          BottomNavigationBarItem(icon: Icon(Icons.receipt), label: "Orders"),
+          BottomNavigationBarItem(icon: Icon(Icons.search), label: "Search"),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'You'),
+        ],
       ),
     );
   }

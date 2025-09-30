@@ -7,15 +7,15 @@ part of 'restaurant.dart';
 // **************************************************************************
 
 Restaurant _$RestaurantFromJson(Map<String, dynamic> json) => Restaurant(
-  id: json['id'] as String,
-  name: json['name'] as String,
-  cuisineType: json['cuisineType'] as String,
-  rating: (json['rating'] as num).toDouble(),
-  tier: json['tier'] as String,
-  menu: (json['menu'] as List<dynamic>)
-      .map((e) => MenuItem.fromJson(e as Map<String, dynamic>))
-      .toList(),
-);
+      id: json['id'] as String,
+      name: json['name'] as String,
+      cuisineType: json['cuisineType'] as String,
+      rating: (json['rating'] as num).toDouble(),
+      tier: json['tier'] as String,
+      menu: (json['menu'] as List<dynamic>)
+          .map((e) => MenuItem.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
 
 Map<String, dynamic> _$RestaurantToJson(Restaurant instance) =>
     <String, dynamic>{

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:food_delivery_app/models/order_model.dart';
 import 'package:food_delivery_app/widgets/order_history_card.dart';
-import 'package:food_delivery_app/models/menu_item.dart'; // Import untuk dummy data
+import 'package:food_delivery_app/models/menu_item.dart';
 
 class OrderHistoryScreen extends StatefulWidget {
   const OrderHistoryScreen({super.key});
@@ -11,7 +11,6 @@ class OrderHistoryScreen extends StatefulWidget {
 }
 
 class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
-  // Data dummy untuk riwayat pesanan
   final List<OrderModel> _orderHistory = [
     OrderModel(
       orderId: 'FD12345',
@@ -28,6 +27,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
           quantity: 1,
         ),
       ],
+      status: 'Selesai',
     ),
     OrderModel(
       orderId: 'FD12346',

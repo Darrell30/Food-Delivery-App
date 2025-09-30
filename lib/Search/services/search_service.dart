@@ -1,42 +1,66 @@
 import 'dart:async';
-import '../models/restaurant.dart';
+import 'package:food_delivery_app/models/restaurant.dart';
+import 'package:food_delivery_app/models/menu_item.dart';
 
 class SearchService {
-  Future<List<Restaurant>> searchRestaurants(String query) async {
+  // Data dummy sekarang sudah dilengkapi dengan menu
+  final List<Restaurant> _allRestaurants = [
+    Restaurant(
+      id: 'r1',
+      name: 'Sate Padang Mak Ciak',
+      cuisineType: 'Indonesian',
+      rating: 4.9,
+      tier: 'top',
+      menu: [
+        MenuItem(id: 'm1', name: 'Sate Padang Daging', price: 28000, imageUrl: 'https://via.placeholder.com/150'),
+        MenuItem(id: 'm2', name: 'Sate Padang Lidah', price: 28000, imageUrl: 'https://via.placeholder.com/150'),
+        MenuItem(id: 'm3', name: 'Kerupuk Kulit', price: 5000, imageUrl: 'https://via.placeholder.com/150'),
+      ],
+    ),
+    Restaurant(
+      id: 'r2',
+      name: 'Nasi Goreng Mantap',
+      cuisineType: 'Indonesian',
+      rating: 4.8,
+      tier: 'top',
+      menu: [
+        MenuItem(id: 'm4', name: 'Nasi Goreng Spesial', price: 35000, imageUrl: 'https://via.placeholder.com/150'),
+        MenuItem(id: 'm5', name: 'Nasi Goreng Seafood', price: 40000, imageUrl: 'https://via.placeholder.com/150'),
+        MenuItem(id: 'm6', name: 'Es Teh Manis', price: 8000, imageUrl: 'https://via.placeholder.com/150'),
+      ],
+    ),
+    Restaurant(
+      id: 'r3',
+      name: 'Martabak Orins',
+      cuisineType: 'Street Food',
+      rating: 4.7,
+      tier: 'top',
+      menu: [
+        MenuItem(id: 'm7', name: 'Martabak Telor Spesial', price: 55000, imageUrl: 'https://via.placeholder.com/150'),
+        MenuItem(id: 'm8', name: 'Martabak Manis Coklat', price: 60000, imageUrl: 'https://via.placeholder.com/150'),
+      ],
+    ),
+    Restaurant(
+      id: 'r4',
+      name: 'Burger Queen',
+      cuisineType: 'Western',
+      rating: 4.5,
+      tier: 'top',
+      menu: [
+        MenuItem(id: 'm9', name: 'Classic Beef Burger', price: 75000, imageUrl: 'https://via.placeholder.com/150'),
+        MenuItem(id: 'm10', name: 'French Fries', price: 30000, imageUrl: 'https://via.placeholder.com/150'),
+        MenuItem(id: 'm11', name: 'Cola', price: 15000, imageUrl: 'https://via.placeholder.com/150'),
+      ],
+    ),
+  ];
 
-    final List<Map<String, dynamic>> dummyData = [
-      {'id': '1', 'name': 'Burger Queen', 'cuisineType': 'Western', 'rating': 4.5, 'latitude': -6.2088, 'longitude': 106.8456, 'tier': 'top'},
-      {'id': '2', 'name': 'Nasi Goreng Mantap', 'cuisineType': 'Indonesian', 'rating': 4.8, 'latitude': -6.2208, 'longitude': 106.8488, 'tier': 'top'},
-      {'id': '3', 'name': 'Sate Padang Mak Ciak', 'cuisineType': 'Indonesian', 'rating': 4.9, 'latitude': -6.2150, 'longitude': 106.8350, 'tier': 'top'},
-      {'id': '4', 'name': 'Taco Bell', 'cuisineType': 'Mexican', 'rating': 4.2, 'latitude': -6.2250, 'longitude': 106.8500, 'tier': 'standard'},
-      {'id': '5', 'name': 'Martabak Orins', 'cuisineType': 'Street Food', 'rating': 4.7, 'latitude': -6.2100, 'longitude': 106.8400, 'tier': 'top'},
-      {'id': '6', 'name': 'Kebab Turki Baba Rafi', 'cuisineType': 'Turkish', 'rating': 4.6, 'latitude': -6.2120, 'longitude': 106.8420, 'tier': 'standard'},
-    ];
-
-    List<Restaurant> restaurants = dummyData.map((json) => Restaurant.fromJson(json)).toList();
-
-    return restaurants
-        .where((restaurant) =>
-            restaurant.name.toLowerCase().contains(query.toLowerCase()) ||
-            restaurant.cuisineType.toLowerCase().contains(query.toLowerCase()))
-        .toList();
+  Future<List<Restaurant>> getTopTierRestaurants() async {
+    await Future.delayed(const Duration(seconds: 1));
+    final results = _allRestaurants.where((r) => r.tier == 'top').toList();
+    return results;
   }
 
-  // Metode baru untuk mendapatkan restoran top tier
-  Future<List<Restaurant>> getTopTierRestaurants() async {
-    final List<Map<String, dynamic>> dummyData = [
-      {'id': '1', 'name': 'Burger Queen', 'cuisineType': 'Western', 'rating': 4.5, 'latitude': -6.2088, 'longitude': 106.8456, 'tier': 'top'},
-      {'id': '2', 'name': 'Nasi Goreng Mantap', 'cuisineType': 'Indonesian', 'rating': 4.8, 'latitude': -6.2208, 'longitude': 106.8488, 'tier': 'top'},
-      {'id': '3', 'name': 'Sate Padang Mak Ciak', 'cuisineType': 'Indonesian', 'rating': 4.9, 'latitude': -6.2150, 'longitude': 106.8350, 'tier': 'top'},
-      {'id': '4', 'name': 'Taco Bell', 'cuisineType': 'Mexican', 'rating': 4.2, 'latitude': -6.2250, 'longitude': 106.8500, 'tier': 'standard'},
-      {'id': '5', 'name': 'Martabak Orins', 'cuisineType': 'Street Food', 'rating': 4.7, 'latitude': -6.2100, 'longitude': 106.8400, 'tier': 'top'},
-    ];
-
-    List<Restaurant> restaurants = dummyData.map((json) => Restaurant.fromJson(json)).toList();
-
-    return restaurants
-        .where((r) => r.tier == 'top')
-        .toList()
-        ..sort((a, b) => b.rating.compareTo(a.rating));
+  Future<List<Restaurant>> searchRestaurants(String query) async {
+    return [];
   }
 }

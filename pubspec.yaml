@@ -19,11 +19,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-<<<<<<< HEAD
-  sdk: ^3.8.1
-=======
   sdk: '>=3.4.0 <4.0.0'
->>>>>>> main
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -44,36 +40,23 @@ dependencies:
   geocoding: ^4.0.0
   shared_preferences: ^2.2.3
   http: ^1.2.1
-<<<<<<< HEAD
   provider: ^6.1.2
   image_picker: ^1.1.2
+  intl: ^0.19.0
   
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_launcher_icons: "^0.13.1"
-=======
-  intl: ^0.19.0
-
-dev_dependencies:
-  flutter_test:
-    sdk: flutter
->>>>>>> main
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-<<<<<<< HEAD
   flutter_lints: ^5.0.0
   build_runner: ^2.8.0
   json_serializable: ^6.11.1
-=======
-  flutter_lints: ^4.0.0
-  build_runner: ^2.4.9
-  json_serializable: ^6.8.0
->>>>>>> main
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -87,14 +70,8 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-<<<<<<< HEAD
   assets:
     - assets/icons/
-=======
-  # assets:
-  #   - images/a_dot_burr.jpeg
-  #   - images/a_dot_ham.jpeg
->>>>>>> main
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
@@ -121,11 +98,8 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
-<<<<<<< HEAD
 
 flutter_launcher_icons:
   android: true # Use true to generate an icon for Android
   ios: true # Use true to generate an icon for iOS
   image_path: "assets/icons/icon.png"
-=======
->>>>>>> main
