@@ -1,11 +1,20 @@
 import 'dart:convert';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import 'dart:ui' as ui;
-import 'restaurant_menu_page.dart';
+
+import 'OrderScreen.dart';
+import '../user_data.dart';
+
+class MapData {
+  final Position position;
+  final Set<Marker> markers;
+  MapData(this.position, this.markers);
+}
 
 class PickUpScreen extends StatefulWidget {
   const PickUpScreen({super.key});
@@ -15,129 +24,143 @@ class PickUpScreen extends StatefulWidget {
 }
 
 class _PickUpScreenState extends State<PickUpScreen> {
-  GoogleMapController? _mapController;
-  Position? _currentLocation;
-  bool _isLoading = true;
-  Set<Marker> _markers = {};
-  BitmapDescriptor _markerIcon = BitmapDescriptor.defaultMarker;
-
-  // GANTI DENGAN API KEY GOOGLE MAPS ANDA YANG VALID
-  static const String apiKey = "GANTI_DENGAN_API_KEY_ANDA";
+  late Future<MapData> _mapDataFuture;
+  static const String apiKey = "AIzaSyCVNllzvx7sVo7O6DHJxElh_vhAPDwcifQ";
 
   @override
   void initState() {
     super.initState();
-    _loadCustomMarker();
-    _getCurrentLocation();
+    _mapDataFuture = _prepareMapData();
   }
 
-  Future<void> _fetchNearbyRestaurants() async {
-    if (_currentLocation == null) return;
-    
-    final url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${_currentLocation!.latitude},${_currentLocation!.longitude}&radius=1500&type=restaurant&key=$apiKey";
+  Future<MapData> _prepareMapData() async {
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        return Future.error('Location permissions are denied');
+      }
+    }
+
+    final customMarkerIcon = await _getBitmapDescriptorFromIconData(
+      Icons.food_bank,
+      const Color.fromRGBO(39, 0, 197, 1),
+      120.0, // Icon size
+    );
+
+    final position = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+    );
+    final userLocation = LatLng(position.latitude, position.longitude);
+
+    final markers = await _fetchNearbyRestaurants(userLocation, customMarkerIcon);
+
+    return MapData(position, markers);
+  }
+
+  Future<Set<Marker>> _fetchNearbyRestaurants(
+      LatLng location, BitmapDescriptor icon) async {
+    final url =
+        "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${location.latitude},${location.longitude}&radius=1500&type=restaurant&key=$apiKey";
+    final Set<Marker> newMarkers = {};
 
     try {
       final response = await http.get(Uri.parse(url));
-      if (!mounted) return;
-      final data = json.decode(response.body);
-
-      if (data["status"] == "OK") {
-        final List results = data["results"];
-        final Set<Marker> newMarkers = results.map((place) {
-          final loc = place["geometry"]["location"];
-          return Marker(
-            markerId: MarkerId(place["place_id"]),
-            position: LatLng(loc["lat"], loc["lng"]),
-            icon: _markerIcon,
-            infoWindow: InfoWindow(
-              title: place["name"],
-              snippet: place["vicinity"],
-              // --- INI PERUBAHAN UTAMANYA ---
-              onTap: () {
-                // Logika baru: Arahkan ke halaman menu
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => RestaurantMenuPage(
-                      placeName: place["name"] ?? 'Unknown Restaurant',
-                    ),
-                  ),
-                );
-              },
-            ),
-          );
-        }).toSet();
-
-        setState(() {
-          _markers = newMarkers;
-        });
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data["status"] == "OK") {
+          final List results = data["results"];
+          for (var place in results) {
+            final loc = place["geometry"]["location"];
+            newMarkers.add(
+              Marker(
+                markerId: MarkerId(place["place_id"]),
+                position: LatLng(loc["lat"], loc["lng"]),
+                icon: icon,
+                infoWindow: InfoWindow(
+                  title: place["name"],
+                  snippet: place["vicinity"],
+                  onTap: () {
+                    final userData = Provider.of<UserData>(context, listen: false);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => OrderScreen(
+                          placeName: place["name"],
+                          onOrderCreated: (newOrder) {
+                            userData.addNewOrder(newOrder);
+                          },
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            );
+          }
+        }
       }
     } catch (e) {
       debugPrint("Error fetching places: $e");
     }
+    return newMarkers;
+  }
+
+  Future<BitmapDescriptor> _getBitmapDescriptorFromIconData(
+      IconData iconData, Color color, double size) async {
+    final ui.PictureRecorder pictureRecorder = ui.PictureRecorder();
+    final Canvas canvas = Canvas(pictureRecorder);
+    final TextPainter textPainter = TextPainter(textDirection: TextDirection.ltr);
+    textPainter.text = TextSpan(
+      text: String.fromCharCode(iconData.codePoint),
+      style: TextStyle(
+        fontSize: size,
+        color: color,
+        fontFamily: iconData.fontFamily,
+        package: iconData.fontPackage,
+      ),
+    );
+    textPainter.layout();
+    textPainter.paint(canvas, Offset.zero);
+    final image = await pictureRecorder.endRecording().toImage(
+          textPainter.width.toInt(),
+          textPainter.height.toInt(),
+        );
+    final ByteData? byteData =
+        await image.toByteData(format: ui.ImageByteFormat.png);
+    return BitmapDescriptor.fromBytes(byteData!.buffer.asUint8List());
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Pick Up"),
+        title: const Text("Nearby Restaurants"),
       ),
-      body: Stack(
-        children: [
-          GoogleMap(
-            initialCameraPosition: const CameraPosition(target: LatLng(-6.1751, 106.8650), zoom: 15),
-            myLocationEnabled: true,
-            myLocationButtonEnabled: true,
-            onMapCreated: (controller) => _mapController = controller,
-            markers: _markers,
-          ),
-          if (_isLoading) const Center(child: CircularProgressIndicator()),
-        ],
+
+      body: FutureBuilder<MapData>(
+        future: _mapDataFuture,
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          }
+
+          if (snapshot.hasData) {
+            final mapData = snapshot.data!;
+            return GoogleMap(
+              initialCameraPosition: CameraPosition(
+                target: LatLng(mapData.position.latitude, mapData.position.longitude),
+                zoom: 15,
+              ),
+              myLocationEnabled: true,
+              myLocationButtonEnabled: true,
+              markers: mapData.markers,
+            );
+          }
+
+          return const Center(child: CircularProgressIndicator());
+        },
       ),
     );
-  }
-
-  // --- Fungsi Helper (tidak perlu diubah) ---
-  Future<void> _getCurrentLocation() async {
-    setState(() => _isLoading = true);
-    try {
-      LocationPermission permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
-        if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Location permission denied")));
-        return;
-      }
-      final position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-      if (!mounted) return;
-      setState(() {
-        _currentLocation = position;
-        _mapController?.animateCamera(CameraUpdate.newLatLngZoom(LatLng(position.latitude, position.longitude), 15));
-      });
-      await _fetchNearbyRestaurants();
-    } catch (e) {
-      debugPrint("Error getting location: $e");
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
-    }
-  }
-
-  Future<void> _loadCustomMarker() async {
-    final icon = await _getBitmapDescriptorFromIconData(Icons.food_bank, const Color.fromRGBO(39, 0, 197, 1), 120.0);
-    if (mounted) setState(() => _markerIcon = icon);
-  }
-
-  Future<BitmapDescriptor> _getBitmapDescriptorFromIconData(IconData iconData, Color color, double size) async {
-    final ui.PictureRecorder pictureRecorder = ui.PictureRecorder();
-    final Canvas canvas = Canvas(pictureRecorder);
-    final textPainter = TextPainter(textDirection: TextDirection.ltr);
-    textPainter.text = TextSpan(
-      text: String.fromCharCode(iconData.codePoint),
-      style: TextStyle(fontSize: size, color: color, fontFamily: iconData.fontFamily, package: iconData.fontPackage),
-    );
-    textPainter.layout();
-    textPainter.paint(canvas, Offset.zero);
-    final image = await pictureRecorder.endRecording().toImage(textPainter.width.toInt(), textPainter.height.toInt());
-    final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
-    return BitmapDescriptor.fromBytes(byteData!.buffer.asUint8List());
   }
 }

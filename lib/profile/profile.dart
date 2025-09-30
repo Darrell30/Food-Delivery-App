@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../user_data.dart';
 import 'map_screen.dart';
 import 'screens/balance_screen.dart';
+import '../screens/order_history_screen.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -141,7 +142,7 @@ class _ProfilePageState extends State<ProfilePage> {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const Placeholder()),
+                MaterialPageRoute(builder: (context) => const OrderHistoryScreen()),
               );
             },
           ),
