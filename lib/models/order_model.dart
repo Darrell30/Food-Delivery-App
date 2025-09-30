@@ -1,6 +1,5 @@
-import 'package.food_delivery_app/models/menu_item.dart';
+import 'package:food_delivery_app/models/menu_item.dart';
 
-// Kelas ini merepresentasikan satu item dalam sebuah pesanan
 class OrderItem {
   final MenuItem menuItem;
   final int quantity;
@@ -11,14 +10,13 @@ class OrderItem {
   });
 }
 
-// Kelas ini merepresentasikan seluruh pesanan
 class OrderModel {
   final String orderId;
   final String restaurantName;
   final List<OrderItem> items;
   final double totalPrice;
   final DateTime orderDate;
-  final String status; // Contoh: "Selesai", "Dibatalkan"
+  final String status;
 
   OrderModel({
     required this.orderId,

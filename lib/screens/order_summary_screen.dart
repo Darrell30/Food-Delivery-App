@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import '../models/menu_item.dart';
 import '../models/restaurant.dart';
-import 'payment_screen.dart'; // <-- TAMBAHKAN IMPORT INI
+import 'payment_screen.dart';
 
 class OrderSummaryScreen extends StatelessWidget {
-  // ... (sisa kode Anda di sini tetap sama) ...
   final Restaurant restaurant;
   final Map<String, int> selectedItems;
 
@@ -69,12 +68,15 @@ class OrderSummaryScreen extends StatelessWidget {
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(16.0),
         child: ElevatedButton(
-          // --- BAGIAN YANG DIPERBARUI ---
           onPressed: () {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => PaymentScreen(totalAmount: total),
+                builder: (context) => PaymentScreen(
+                  totalAmount: total,
+                  restaurant: restaurant,       // <-- BARIS INI SEBELUMNYA HILANG
+                  selectedItems: selectedItems, // <-- BARIS INI SEBELUMNYA HILANG
+                ),
               ),
             );
           },
@@ -90,7 +92,6 @@ class OrderSummaryScreen extends StatelessWidget {
   }
 
   Widget _buildCostRow(String title, double amount, {bool isTotal = false}) {
-    // ... (kode helper ini tetap sama)
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: Row(
