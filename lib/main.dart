@@ -30,7 +30,10 @@ class FoodDeliveryApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: "Food Delivery",
-      theme: ThemeData(primaryColor: const Color.fromRGBO(39, 0, 197, 1)),
+      theme: ThemeData(
+        primaryColor: const Color.fromRGBO(39, 0, 197, 1),
+        fontFamily: 'Poppins',
+      ),
       home: const MainPage(),
     );
   }
