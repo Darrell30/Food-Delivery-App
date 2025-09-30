@@ -7,8 +7,6 @@ import 'package:food_delivery_app/models/menu_item.dart';
 
 class RestaurantMenuPage extends StatefulWidget {
   final String placeName;
-  // Kita akan butuh ini nanti untuk mendapatkan menu yang benar
-  // final Restaurant restaurant; 
 
   const RestaurantMenuPage({super.key, required this.placeName});
 
@@ -17,7 +15,6 @@ class RestaurantMenuPage extends StatefulWidget {
 }
 
 class _RestaurantMenuPageState extends State<RestaurantMenuPage> {
-  // Daftar menu dummy (sementara)
   final List<MenuItem> _menu = [
     MenuItem(id: 'm1', name: 'Classic Burger', price: 75000, imageUrl: 'https://via.placeholder.com/150'),
     MenuItem(id: 'm2', name: 'Pizza', price: 150000, imageUrl: 'https://via.placeholder.com/150'),

@@ -9,12 +9,16 @@ class OrdersPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // orderProvider akan listen terhadap perubahan di OrderProvider
     final orderProvider = Provider.of<OrderProvider>(context);
     final allOrders = orderProvider.orderHistory;
-    final isLoading = orderProvider.isLoading;
+    
+    // final isLoading = orderProvider.isLoading; // <--- BARIS INI DIHAPUS
 
+    // Perhatikan status yang kamu gunakan, sesuaikan dengan status di OrderModel/Provider
     final pendingOrders = allOrders.where((order) => order.status == 'pending').toList();
-    final onDeliveryOrders = allOrders.where((order) => order.status == 'on_delivery').toList();
+    // Gunakan 'Siap Diambil' yang kita set di OrderScreen.dart jika itu adalah status aktif
+    final onDeliveryOrders = allOrders.where((order) => order.status == 'Siap Diambil' || order.status == 'on_delivery').toList(); 
     final completedOrders = allOrders.where((order) => order.status == 'Selesai').toList();
 
     return DefaultTabController(
@@ -32,16 +36,15 @@ class OrdersPage extends StatelessWidget {
             ],
           ),
         ),
-        body: isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : TabBarView(
-                children: [
-                  _buildOrderList(context, pendingOrders),
-                  _buildOrderList(context, allOrders),
-                  _buildOrderList(context, onDeliveryOrders),
-                  _buildOrderList(context, completedOrders),
-                ],
-              ),
+        // Hapus logika isLoading dan langsung tampilkan TabBarView
+        body: TabBarView(
+          children: [
+            _buildOrderList(context, pendingOrders),
+            _buildOrderList(context, allOrders),
+            _buildOrderList(context, onDeliveryOrders),
+            _buildOrderList(context, completedOrders),
+          ],
+        ),
       ),
     );
   }
@@ -52,6 +55,7 @@ class OrdersPage extends StatelessWidget {
         child: Text('Tidak ada pesanan di kategori ini.', style: TextStyle(color: Colors.grey)),
       );
     }
+    // Mengurutkan dari yang terbaru (b.orderDate > a.orderDate)
     orders.sort((a, b) => b.orderDate.compareTo(a.orderDate));
     
     return ListView.builder(

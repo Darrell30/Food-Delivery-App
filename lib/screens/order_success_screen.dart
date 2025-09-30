@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:food_delivery_app/models/order_model.dart';
+import 'package:provider/provider.dart'; 
+import '../providers/tab_provider.dart'; 
 
 class OrderSuccessScreen extends StatelessWidget {
   final OrderModel order;
@@ -10,7 +12,7 @@ class OrderSuccessScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeading: false, // Menghilangkan tombol kembali
+        automaticallyImplyLeading: false, 
       ),
       body: Center(
         child: Padding(
@@ -36,19 +38,12 @@ class OrderSuccessScreen extends StatelessWidget {
               ),
               const SizedBox(height: 48),
 
-              // --- TOMBOL LACAK PESANAN (MENUJU PICKUP) ---
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    // Kembali ke root, lalu pindah ke tab Pickup (indeks 1)
                     Navigator.of(context).popUntil((route) => route.isFirst);
-                    // Catatan: Ini mengasumsikan Anda punya state management untuk pindah tab.
-                    // Jika tidak, cara ini akan kembali ke Home.
-                    // Untuk sekarang, kita tampilkan notifikasi saja.
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Membuka halaman Lacak Pesanan (Pickup)...')),
-                    );
+                    Provider.of<TabProvider>(context, listen: false).changeTab(1);
                   },
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
@@ -58,18 +53,12 @@ class OrderSuccessScreen extends StatelessWidget {
               ),
               const SizedBox(height: 12),
 
-              // --- TOMBOL KEMBALI KE BERANDA (MENUJU ORDERS) ---
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton(
                   onPressed: () {
-                    // Kembali ke root, lalu pindah ke tab Orders (indeks 2)
                     Navigator.of(context).popUntil((route) => route.isFirst);
-                     // Catatan: Sama seperti di atas, ini butuh state management.
-                     // Untuk sekarang, kita tampilkan notifikasi saja.
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Membuka halaman Riwayat Pesanan (Orders)...')),
-                    );
+                    Provider.of<TabProvider>(context, listen: false).changeTab(2);
                   },
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),

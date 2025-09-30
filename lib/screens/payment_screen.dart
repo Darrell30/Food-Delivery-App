@@ -22,10 +22,9 @@ class PaymentScreen extends StatefulWidget {
 }
 
 class _PaymentScreenState extends State<PaymentScreen> {
-  String? _selectedPaymentMethod; // Melacak metode yang dipilih
+  String? _selectedPaymentMethod; 
 
   void _processPayment() {
-    // 1. Membuat objek OrderModel baru
     final List<OrderItem> orderedItems = [];
     widget.selectedItems.forEach((itemId, quantity) {
       final menuItem = widget.restaurant.menu.firstWhere((item) => item.id == itemId);
@@ -41,15 +40,13 @@ class _PaymentScreenState extends State<PaymentScreen> {
       status: 'Diproses',
     );
 
-    // 2. Simpan pesanan ke riwayat
     OrderService.addOrder(newOrder);
 
-    // 3. Navigasi ke halaman sukses dan hapus semua halaman sebelumnya
     Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute(
         builder: (context) => OrderSuccessScreen(order: newOrder),
       ),
-      (route) => false, // Hapus semua rute dari stack navigasi
+      (route) => false, 
     );
   }
 
@@ -64,7 +61,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Total Pembayaran
             Text('Total yang Harus Dibayar', style: TextStyle(fontSize: 18, color: Colors.grey[700])),
             const SizedBox(height: 8),
             Text('Rp ${widget.totalAmount.toStringAsFixed(0)}', style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
@@ -74,7 +70,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
             const Text('Pilih Metode Pembayaran', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
 
-            // Opsi Pembayaran
             _buildPaymentOptionTile(title: 'GoPay', icon: Icons.account_balance_wallet, value: 'gopay'),
             _buildPaymentOptionTile(title: 'OVO', icon: Icons.wallet, value: 'ovo'),
             _buildPaymentOptionTile(title: 'Kartu Kredit / Debit', icon: Icons.credit_card, value: 'card'),

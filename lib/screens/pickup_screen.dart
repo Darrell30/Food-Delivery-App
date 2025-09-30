@@ -4,11 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
-import 'package:provider/provider.dart';
 import 'dart:ui' as ui;
 
 import 'OrderScreen.dart';
-import '../user_data.dart';
 
 class MapData {
   final Position position;
@@ -45,7 +43,7 @@ class _PickUpScreenState extends State<PickUpScreen> {
     final customMarkerIcon = await _getBitmapDescriptorFromIconData(
       Icons.food_bank,
       const Color.fromRGBO(39, 0, 197, 1),
-      120.0, // Icon size
+      120.0, 
     );
 
     final position = await Geolocator.getCurrentPosition(
@@ -81,15 +79,11 @@ class _PickUpScreenState extends State<PickUpScreen> {
                   title: place["name"],
                   snippet: place["vicinity"],
                   onTap: () {
-                    final userData = Provider.of<UserData>(context, listen: false);
                     Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => OrderScreen(
                           placeName: place["name"],
-                          onOrderCreated: (newOrder) {
-                            userData.addNewOrder(newOrder);
-                          },
                         ),
                       ),
                     );

@@ -74,8 +74,8 @@ class OrderSummaryScreen extends StatelessWidget {
               MaterialPageRoute(
                 builder: (context) => PaymentScreen(
                   totalAmount: total,
-                  restaurant: restaurant,       // <-- BARIS INI SEBELUMNYA HILANG
-                  selectedItems: selectedItems, // <-- BARIS INI SEBELUMNYA HILANG
+                  restaurant: restaurant,      
+                  selectedItems: selectedItems, 
                 ),
               ),
             );
