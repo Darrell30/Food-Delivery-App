@@ -1,9 +1,11 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/tab_provider.dart';
 import '../user_data.dart';
 import '../profile/map_screen.dart';
+import 'profile/screens/balance_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -13,8 +15,49 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  // State to track which filters are currently selected
-  final Set<String> _selectedFilters = {};
+  final List<String> promoImagePaths = [
+    'assets/icons/promo1.jpg',
+    'assets/icons/promo2.jpg',
+    'assets/icons/promo3.jpg',
+    'assets/icons/promo4.jpg',
+  ];
+
+  late final PageController _pageController;
+  late final Timer _timer;
+  int _currentPage = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(
+      initialPage: 0,
+      viewportFraction: 0.85,
+    );
+
+    _timer = Timer.periodic(const Duration(seconds: 4), (timer) {
+      if (mounted) {
+        if (_currentPage < promoImagePaths.length - 1) {
+          _currentPage++;
+        } else {
+          _currentPage = 0;
+        }
+        if (_pageController.hasClients) {
+          _pageController.animateToPage(
+            _currentPage,
+            duration: const Duration(milliseconds: 400),
+            curve: Curves.easeIn,
+          );
+        }
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    _timer.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +86,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 : null,
           ),
           onPressed: () {
-            context.read<TabProvider>().changeTab(4); // Switch to Profile tab
+            context.read<TabProvider>().changeTab(4);
           },
         ),
         title: InkWell(
@@ -81,66 +124,65 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
         ),
-        actions: const [
-          Icon(Icons.keyboard_arrow_down, color: Colors.black),
-          SizedBox(width: 10),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.keyboard_arrow_down, color: Colors.black),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const BalanceScreen()),
+              );
+            },
+          ),
+          const SizedBox(width: 10),
         ],
       ),
       body: ListView(
         padding: const EdgeInsets.all(10),
         children: [
-          // 🔹 kategori (scroll horizontal)
           SizedBox(
-            height: 80,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              children: const [
-                CategoryItem(icon: Icons.local_grocery_store, label: "Convenience"),
-                CategoryItem(icon: Icons.fastfood, label: "Fast Food"),
-                CategoryItem(icon: Icons.lunch_dining, label: "Burgers"),
-                CategoryItem(icon: Icons.set_meal, label: "Fish & Chips"),
-                CategoryItem(icon: Icons.ramen_dining, label: "Asian"),
-              ],
+            height: 180.0,
+            child: PageView.builder(
+              controller: _pageController,
+              itemCount: promoImagePaths.length,
+              onPageChanged: (int page) {
+                setState(() {
+                  _currentPage = page;
+                });
+              },
+              itemBuilder: (context, index) {
+                return Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 5.0),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: Image.asset(
+                      promoImagePaths[index],
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                );
+              },
             ),
           ),
-          const SizedBox(height: 15),
-
-          // 🔹 filter (scroll horizontal)
-          SizedBox(
-            height: 40,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              children: [
-                _buildFilterChip("Over 4.5 ★"),
-                const SizedBox(width: 8),
-                _buildFilterChip("Under 30 min"),
-                const SizedBox(width: 8),
-                _buildFilterChip("Pickup"),
-                const SizedBox(width: 8),
-                _buildFilterChip("Vegetarian"),
-              ],
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List.generate(promoImagePaths.length, (index) {
+              return AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 12),
+                height: 8,
+                width: _currentPage == index ? 24 : 8,
+                decoration: BoxDecoration(
+                  color: _currentPage == index
+                      ? Theme.of(context).primaryColor
+                      : Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              );
+            }),
           ),
-          const SizedBox(height: 15),
-
-          // 🔹 Banner promo
-          Container(
-            height: 120,
-            decoration: BoxDecoration(
-              color: Colors.blue[50],
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: const Center(
-              child: Text(
-                "No delivery fee\nTry DashPass FREE for 30 days",
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.black, fontSize: 16),
-              ),
-            ),
-          ),
+          _buildBalanceCard(),
           const SizedBox(height: 20),
-
-          // 🔹 Section: Order Within Vicinity
           const SectionTitle(title: "Order Within Vicinity"),
           const SizedBox(height: 10),
           Row(
@@ -163,8 +205,6 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
           const SizedBox(height: 20),
-
-          // 🔹 Section: Special Offers
           const SectionTitle(title: "Special Offers for You"),
           const SizedBox(height: 10),
           Row(
@@ -191,47 +231,59 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // Helper widget for creating a functional FilterChip
-  Widget _buildFilterChip(String label) {
-    final isSelected = _selectedFilters.contains(label);
-    return FilterChip(
-      label: Text(label),
-      selected: isSelected,
-      onSelected: (bool selected) {
-        setState(() {
-          if (selected) {
-            _selectedFilters.add(label);
-          } else {
-            _selectedFilters.remove(label);
-          }
-        });
-      },
-      selectedColor: Theme.of(context).primaryColor.withOpacity(0.2),
-      checkmarkColor: Theme.of(context).primaryColor,
+  Widget _buildBalanceCard() {
+    return Card(
+      elevation: 2,
+      shadowColor: Colors.grey.withOpacity(0.2),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Row(
+          children: [
+            const CircleAvatar(
+              backgroundColor: Color(0xFFE0F7FA),
+              child: Icon(Icons.account_balance_wallet, color: Color(0xFF00838F)),
+            ),
+            const SizedBox(width: 12),
+            const Text("Rp 134.000",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Spacer(),
+            // ### PERUBAHAN DI SINI ###
+            _buildActionItem(
+              icon: Icons.add,
+              label: "Top Up",
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const BalanceScreen()),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
     );
   }
-}
 
-class CategoryItem extends StatelessWidget {
-  final IconData icon;
-  final String label;
-
-  const CategoryItem({super.key, required this.icon, required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 15),
-      child: Column(
-        children: [
-          CircleAvatar(
-            radius: 25,
-            backgroundColor: Colors.grey[200],
-            child: Icon(icon, color: Colors.black),
-          ),
-          const SizedBox(height: 5),
-          Text(label, style: const TextStyle(fontSize: 12)),
-        ],
+  // ### PERUBAHAN DI SINI ###
+  Widget _buildActionItem({required IconData icon, required String label, VoidCallback? onTap}) {
+    return InkWell( // <-- Dibungkus dengan InkWell agar bisa diklik
+      onTap: onTap, // <-- Menjalankan fungsi onTap saat diklik
+      borderRadius: BorderRadius.circular(30), // Agar efek ripple bulat
+      child: Padding( // Tambahkan padding agar area klik lebih luas
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CircleAvatar(
+              radius: 20,
+              backgroundColor: const Color(0xFFE0F7FA),
+              child: Icon(icon, color: const Color(0xFF00838F), size: 22),
+            ),
+            const SizedBox(height: 5),
+            Text(label, style: const TextStyle(fontSize: 12)),
+          ],
+        ),
       ),
     );
   }
@@ -239,9 +291,7 @@ class CategoryItem extends StatelessWidget {
 
 class SectionTitle extends StatelessWidget {
   final String title;
-
   const SectionTitle({super.key, required this.title});
-
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -260,14 +310,12 @@ class ProductCard extends StatelessWidget {
   final String name;
   final String subtitle;
   final String imagePath;
-
   const ProductCard({
     super.key,
     required this.name,
     required this.subtitle,
     required this.imagePath,
   });
-
   @override
   Widget build(BuildContext context) {
     return Container(
