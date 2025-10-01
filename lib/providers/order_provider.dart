@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:food_delivery_app/models/order_model.dart';
 import 'package:food_delivery_app/models/menu_item.dart';
@@ -40,15 +41,77 @@ class OrderProvider extends ChangeNotifier {
     ),
   ];
 
+  int _orderProcessingTime = 0;
+  Timer? _processingTimer;
+  String? _currentlyProcessingOrderId;
+
+  bool get isProcessing => _orderProcessingTime > 0;
+  int get secondsRemaining => _orderProcessingTime;
+  String? get currentlyProcessingOrderId => _currentlyProcessingOrderId;
+
   List<OrderModel> get orderHistory => _orderHistory;
 
   void addOrder(OrderModel newOrder) {
     _orderHistory.insert(0, newOrder);
     notifyListeners();
   }
+  
+  void _updateOrderStatus(String orderId, String newStatus) {
+    try {
+      final orderIndex = _orderHistory.indexWhere((order) => order.orderId == orderId);
+      if (orderIndex != -1) {
+        final oldOrder = _orderHistory[orderIndex];
+        _orderHistory[orderIndex] = OrderModel(
+          orderId: oldOrder.orderId,
+          restaurantName: oldOrder.restaurantName,
+          items: oldOrder.items,
+          totalPrice: oldOrder.totalPrice,
+          orderDate: oldOrder.orderDate,
+          status: newStatus,
+        );
+        notifyListeners();
+      }
+    } catch (e) {
+      debugPrint('Error updating order status: $e');
+    }
+  }
+
+  void startOrderProcessing(String orderId) {
+    if (_processingTimer != null) {
+      _processingTimer!.cancel();
+    }
+    
+    _currentlyProcessingOrderId = orderId;
+    _orderProcessingTime = 15; 
+    _updateOrderStatus(orderId, 'Diproses (Memasak)'); 
+
+    _processingTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_orderProcessingTime > 0) {
+        _orderProcessingTime--;
+        notifyListeners(); 
+      } else {
+        timer.cancel();
+        _processingTimer = null;
+        _finishProcessing(orderId);
+      }
+    });
+  }
+  
+  void _finishProcessing(String orderId) {
+    _updateOrderStatus(orderId, 'Siap Diambil');
+    
+    _currentlyProcessingOrderId = null;
+    notifyListeners();
+  }
 
   void clearOrders() {
     _orderHistory.clear();
     notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _processingTimer?.cancel();
+    super.dispose();
   }
 }
