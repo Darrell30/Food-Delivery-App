@@ -70,6 +70,17 @@ class OrderProvider with ChangeNotifier {
       await _saveOrders();
     }
   }
+  Future<void> cancelOrder(String orderId) async {
+    // Stop timer if this order is currently being processed (for pickup orders)
+    if (_currentlyProcessingOrderId == orderId) {
+      _processingTimer?.cancel();
+      _processingTimer = null;
+      _orderProcessingTime = 0;
+      _currentlyProcessingOrderId = null;
+    }
+
+    await _updateOrderStatus(orderId, 'Dibatalkan');
+  }
 
   void startOrderProcessing(String orderId) {
     if (_processingTimer != null && _processingTimer!.isActive) return;

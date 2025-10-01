@@ -1,10 +1,6 @@
-// GENERATED CODE - DO NOT MODIFY BY HAND
+
 
 part of 'menu_item.dart';
-
-// **************************************************************************
-// JsonSerializableGenerator
-// **************************************************************************
 
 MenuItem _$MenuItemFromJson(Map<String, dynamic> json) => MenuItem(
       id: json['id'] as String,

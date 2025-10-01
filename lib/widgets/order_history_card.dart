@@ -1,8 +1,10 @@
-// lib/widgets/order_history_card.dart
+// lib/widgets/order_history_card.dart yang diperbarui
 
 import 'package:flutter/material.dart';
 import 'package:food_delivery_app/models/order_model.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import 'package:food_delivery_app/providers/order_provider.dart';
 
 class OrderHistoryCard extends StatelessWidget {
   final OrderModel order;
@@ -18,6 +20,7 @@ class OrderHistoryCard extends StatelessWidget {
       case 'pending':
       case 'Diproses':
       case 'Siap Diambil':
+      case 'Menunggu Konfirmasi':
         return Colors.orange.shade100;
       default:
         return Colors.grey.shade300;
@@ -33,16 +36,60 @@ class OrderHistoryCard extends StatelessWidget {
       case 'pending':
       case 'Diproses':
       case 'Siap Diambil':
+      case 'Menunggu Konfirmasi':
         return Colors.orange.shade800;
       default:
         return Colors.black;
     }
   }
 
+  // FUNGSI BARU UNTUK MENAMPILKAN DIALOG KONFIRMASI
+  void _showCancelConfirmationDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirm Cancellation'),
+          content: Text('Are you sure you want to cancel the order from ${order.restaurantName}? This action cannot be undone.'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('No, Keep Order'),
+              onPressed: () {
+                Navigator.of(context).pop(); // Tutup dialog
+              },
+            ),
+            TextButton(
+              child: const Text('Yes, Cancel Order', style: TextStyle(color: Colors.red)),
+              onPressed: () {
+                Navigator.of(context).pop(); // Tutup dialog
+
+                // Panggil fungsi pembatalan
+                Provider.of<OrderProvider>(context, listen: false).cancelOrder(order.orderId);
+
+                // Tampilkan SnackBar
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Order successfully cancelled.')),
+                );
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+  // AKHIR FUNGSI BARU
+
   @override
   Widget build(BuildContext context) {
     final totalItems = order.items.fold(0, (sum, item) => sum + item.quantity);
     final formattedDate = DateFormat('d MMMM yyyy, HH:mm').format(order.orderDate);
+    
+    final bool canBeCancelled = 
+        order.status == 'pending' || 
+        order.status == 'Diproses' ||
+        order.status == 'Menunggu Konfirmasi' ||
+        order.status == 'Siap Diambil';
+
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -91,14 +138,26 @@ class OrderHistoryCard extends StatelessWidget {
             const SizedBox(height: 4),
             Text('$totalItems item • Rp ${order.totalPrice.toStringAsFixed(0)}'),
             const SizedBox(height: 8),
-            Align(
-              alignment: Alignment.centerRight,
-              child: TextButton(
-                onPressed: () {
-                  // Logic to navigate to order detail
-                },
-                child: const Text('Lihat Detail'),
-              ),
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                if (canBeCancelled) // Tombol Batal hanya muncul jika dapat dibatalkan
+                  TextButton(
+                    onPressed: () => _showCancelConfirmationDialog(context),
+                    child: Text(
+                      'Cancel Order', // Diubah ke Bahasa Inggris
+                      style: TextStyle(color: Colors.red.shade700, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                
+                TextButton(
+                  onPressed: () {
+                    // Logic to navigate to order detail
+                  },
+                  child: const Text('View Detail'), // Diubah ke Bahasa Inggris
+                ),
+              ],
             )
           ],
         ),

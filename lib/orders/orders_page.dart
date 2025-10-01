@@ -1,3 +1,5 @@
+// lib/orders/orders_page.dart yang diperbarui
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:food_delivery_app/providers/order_provider.dart';
@@ -13,13 +15,16 @@ class OrdersPage extends StatelessWidget {
     final allOrders = orderProvider.orderHistory;
     final isLoading = orderProvider.isLoading;
 
-    // Filter the list for each tab
-    final pendingOrders = allOrders.where((order) => order.status == 'pending').toList();
-    final onDeliveryOrders = allOrders.where((order) => order.status == 'on_delivery').toList();
+    
+    final pendingOrders = allOrders.where((order) => order.status == 'pending' || order.status == 'Menunggu Konfirmasi').toList();
+    final onDeliveryOrders = allOrders.where((order) => order.status == 'on_delivery' || order.status == 'Diproses' || order.status == 'Siap Diambil').toList();
     final completedOrders = allOrders.where((order) => order.status == 'Selesai').toList();
+    
+    final cancelledOrders = allOrders.where((order) => order.status == 'Dibatalkan').toList();
+
 
     return DefaultTabController(
-      length: 4,
+      length: 5, // Diubah dari 4 menjadi 5
       child: Scaffold(
         appBar: AppBar(
           title: const Text('My Orders'),
@@ -30,6 +35,7 @@ class OrdersPage extends StatelessWidget {
               Tab(text: 'All'),
               Tab(text: 'On Delivery'),
               Tab(text: 'Completed'),
+              Tab(text: 'Cancelled') // Tab baru
             ],
           ),
         ),
@@ -41,6 +47,7 @@ class OrdersPage extends StatelessWidget {
                   _buildOrderList(context, allOrders),
                   _buildOrderList(context, onDeliveryOrders),
                   _buildOrderList(context, completedOrders),
+                  _buildOrderList(context, cancelledOrders), // Konten tab baru
                 ],
               ),
       ),
@@ -56,7 +63,6 @@ class OrdersPage extends StatelessWidget {
         ),
       );
     }
-    // Sort orders from newest to oldest
     orders.sort((a, b) => b.orderDate.compareTo(a.orderDate));
     
     return ListView.builder(
