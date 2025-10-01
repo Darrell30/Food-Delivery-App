@@ -1,16 +1,33 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../providers/tab_provider.dart';
 import '../user_data.dart';
-import '../profile/profile.dart';
 import '../profile/map_screen.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  // State to track which filters are currently selected
+  final Set<String> _selectedFilters = {};
 
   @override
   Widget build(BuildContext context) {
     final userData = context.watch<UserData>();
+
+    ImageProvider? backgroundImage;
+    if (userData.profileImagePath.isNotEmpty) {
+      if (userData.profileImagePath.startsWith('assets/')) {
+        backgroundImage = AssetImage(userData.profileImagePath);
+      } else {
+        backgroundImage = FileImage(File(userData.profileImagePath));
+      }
+    }
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -20,18 +37,13 @@ class HomeScreen extends StatelessWidget {
         leading: IconButton(
           icon: CircleAvatar(
             backgroundColor: const Color(0xFFF3F3F3),
-            backgroundImage: userData.profileImagePath.isNotEmpty
-                ? FileImage(File(userData.profileImagePath))
-                : null,
-            child: userData.profileImagePath.isEmpty
+            backgroundImage: backgroundImage,
+            child: backgroundImage == null
                 ? const Icon(Icons.person, color: Colors.black54)
                 : null,
           ),
           onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const ProfilePage()),
-            );
+            context.read<TabProvider>().changeTab(4); // Switch to Profile tab
           },
         ),
         title: InkWell(
@@ -99,13 +111,13 @@ class HomeScreen extends StatelessWidget {
             child: ListView(
               scrollDirection: Axis.horizontal,
               children: [
-                FilterChip(label: const Text("Over 4.5 ★"), onSelected: (_) {}),
+                _buildFilterChip("Over 4.5 ★"),
                 const SizedBox(width: 8),
-                FilterChip(label: const Text("Under 30 min"), onSelected: (_) {}),
+                _buildFilterChip("Under 30 min"),
                 const SizedBox(width: 8),
-                FilterChip(label: const Text("Pickup"), onSelected: (_) {}),
+                _buildFilterChip("Pickup"),
                 const SizedBox(width: 8),
-                FilterChip(label: const Text("Vegetarian"), onSelected: (_) {}),
+                _buildFilterChip("Vegetarian"),
               ],
             ),
           ),
@@ -137,7 +149,7 @@ class HomeScreen extends StatelessWidget {
                 child: ProductCard(
                   name: "Burger King",
                   subtitle: "47 min • \$3.99 delivery",
-                  imagePath: "assets/icons/burger.jpg", 
+                  imagePath: "assets/icons/burger.jpg",
                 ),
               ),
               SizedBox(width: 10),
@@ -145,7 +157,7 @@ class HomeScreen extends StatelessWidget {
                 child: ProductCard(
                   name: "7-Eleven",
                   subtitle: "29 min • \$2.99 delivery",
-                  imagePath: "assets/icons/seven-eleven.png", // pakai assets
+                  imagePath: "assets/icons/seven-eleven.png",
                 ),
               ),
             ],
@@ -161,7 +173,7 @@ class HomeScreen extends StatelessWidget {
                 child: ProductCard(
                   name: "Ramen House",
                   subtitle: "Free delivery",
-                  imagePath: "assets/icons/Ramen.jpeg", // pakai assets
+                  imagePath: "assets/icons/Ramen.jpeg",
                 ),
               ),
               SizedBox(width: 10),
@@ -169,13 +181,33 @@ class HomeScreen extends StatelessWidget {
                 child: ProductCard(
                   name: "Sushi World",
                   subtitle: "20% OFF",
-                  imagePath: "assets/icons/Sushi.jpeg", // pakai assets
+                  imagePath: "assets/icons/Sushi.jpeg",
                 ),
               ),
             ],
           ),
         ],
       ),
+    );
+  }
+
+  // Helper widget for creating a functional FilterChip
+  Widget _buildFilterChip(String label) {
+    final isSelected = _selectedFilters.contains(label);
+    return FilterChip(
+      label: Text(label),
+      selected: isSelected,
+      onSelected: (bool selected) {
+        setState(() {
+          if (selected) {
+            _selectedFilters.add(label);
+          } else {
+            _selectedFilters.remove(label);
+          }
+        });
+      },
+      selectedColor: Theme.of(context).primaryColor.withOpacity(0.2),
+      checkmarkColor: Theme.of(context).primaryColor,
     );
   }
 }

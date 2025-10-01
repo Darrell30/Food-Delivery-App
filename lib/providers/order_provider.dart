@@ -46,4 +46,9 @@ class OrderProvider extends ChangeNotifier {
     _orderHistory.insert(0, newOrder);
     notifyListeners();
   }
+
+  void clearOrders() {
+    _orderHistory.clear();
+    notifyListeners();
+  }
 }

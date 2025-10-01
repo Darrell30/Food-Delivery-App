@@ -9,4 +9,9 @@ class TabProvider with ChangeNotifier {
     _currentIndex = index;
     notifyListeners();
   }
+
+  void resetTab() {
+    _currentIndex = 0;
+    notifyListeners();
+  }
 }

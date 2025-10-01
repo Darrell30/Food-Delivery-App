@@ -3,9 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import '../user_data.dart';
+import '../providers/order_provider.dart';
+import '../providers/tab_provider.dart';
 import 'map_screen.dart';
 import 'screens/balance_screen.dart';
 import '../screens/order_history_screen.dart';
+import 'screens/login_screen.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -33,9 +36,23 @@ class _ProfilePageState extends State<ProfilePage> {
     super.dispose();
   }
 
+  Future<void> _logout() async {
+    Provider.of<UserData>(context, listen: false).logout();
+    Provider.of<OrderProvider>(context, listen: false).clearOrders();
+    Provider.of<TabProvider>(context, listen: false).resetTab();
+
+    if (mounted) {
+      Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => const LoginScreen()),
+        (route) => false,
+      );
+    }
+  }
+
   Future<void> _pickImage(ImageSource source) async {
     final XFile? image = await _picker.pickImage(source: source, imageQuality: 80);
     if (image != null && mounted) {
+      // Save the file path when a new image is picked
       Provider.of<UserData>(context, listen: false)
           .updateProfileImagePath(image.path);
     }
@@ -69,15 +86,19 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  void _toggleEdit() {
+  void _toggleEdit() async {
     final userData = Provider.of<UserData>(context, listen: false);
-    setState(() {
-      if (_isEditing) {
-        userData.updateUserName(_nameController.text);
-        FocusScope.of(context).unfocus();
-      }
-      _isEditing = !_isEditing;
-    });
+    
+    if (_isEditing) {
+      await userData.updateUserName(_nameController.text);
+      if (mounted) FocusScope.of(context).unfocus();
+    }
+    
+    if (mounted) {
+      setState(() {
+        _isEditing = !_isEditing;
+      });
+    }
   }
 
   void _navigateToMapScreen() async {
@@ -86,7 +107,7 @@ class _ProfilePageState extends State<ProfilePage> {
       MaterialPageRoute(builder: (context) => const MapScreen()),
     );
     if (result != null && result is String && mounted) {
-      Provider.of<UserData>(context, listen: false).updateUserAddress(result);
+      await Provider.of<UserData>(context, listen: false).updateUserAddress(result);
     }
   }
 
@@ -101,6 +122,10 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     final userData = Provider.of<UserData>(context);
+
+    if (!_isEditing && _nameController.text != userData.userName) {
+      _nameController.text = userData.userName;
+    }
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -117,7 +142,7 @@ class _ProfilePageState extends State<ProfilePage> {
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
         children: [
           const SizedBox(height: 20),
-          _buildHeader(userData),
+          _buildHeader(userData), // This is where the profile pic logic is
           const SizedBox(height: 20),
           const Divider(),
           _buildMenuListItem(
@@ -169,7 +194,25 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
+  // UPDATED: Logic to correctly load profile image
   Widget _buildHeader(UserData userData) {
+    ImageProvider? backgroundImage;
+    if (userData.profileImagePath.isNotEmpty) {
+      if (userData.profileImagePath.startsWith('assets/')) {
+        // It's an asset path
+        backgroundImage = AssetImage(userData.profileImagePath);
+      } else {
+        // It's a file path (from camera/gallery)
+        final file = File(userData.profileImagePath);
+        if (file.existsSync()) { // Check if the file actually exists
+          backgroundImage = FileImage(file);
+        } else {
+          // Fallback if the file was deleted or path is invalid
+          backgroundImage = null;
+        }
+      }
+    }
+
     return Row(
       children: [
         GestureDetector(
@@ -177,10 +220,8 @@ class _ProfilePageState extends State<ProfilePage> {
           child: CircleAvatar(
             radius: 35,
             backgroundColor: const Color(0xFFF3F3F3),
-            backgroundImage: userData.profileImagePath.isNotEmpty
-                ? FileImage(File(userData.profileImagePath))
-                : null,
-            child: userData.profileImagePath.isEmpty
+            backgroundImage: backgroundImage,
+            child: backgroundImage == null
                 ? const Icon(Icons.person, size: 40, color: Colors.black54)
                 : null,
           ),
@@ -206,7 +247,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       style: const TextStyle(
                           fontSize: 20, fontWeight: FontWeight.bold)),
               const SizedBox(height: 4),
-              Text("example@email.com",
+              Text("admin@gmail.com", // Changed to fixed email as per login screen
                   style: TextStyle(fontSize: 14, color: Colors.grey[600])),
             ],
           ),
@@ -261,7 +302,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Widget _buildLogoutButton() {
     return TextButton(
-      onPressed: () => _showSnackBar("You clicked Log Out"),
+      onPressed: _logout,
       child: const Text("Log Out",
           style: TextStyle(
               color: accentColor, fontSize: 16, fontWeight: FontWeight.bold)),
