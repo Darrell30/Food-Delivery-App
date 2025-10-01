@@ -1,20 +1,20 @@
-import 'dart:async'; 
-import 'dart:math'; 
+import 'dart:async';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../orders/order_models.dart'; 
-import 'package:food_delivery_app/models/order_model.dart'; 
-import 'package:food_delivery_app/models/menu_item.dart'; 
-import '../providers/order_provider.dart'; 
-import '../providers/tab_provider.dart'; 
+import 'package:food_delivery_app/models/order_model.dart';
+import 'package:food_delivery_app/models/menu_item.dart';
+import '../providers/order_provider.dart';
+import '../providers/tab_provider.dart';
 
 class OrderScreen extends StatefulWidget {
   final String placeName;
-  final Order? initialOrder; 
+  final Order? initialOrder;
 
   const OrderScreen({
-    super.key, 
-    required this.placeName, 
+    super.key,
+    required this.placeName,
     this.initialOrder,
   });
 
@@ -23,73 +23,89 @@ class OrderScreen extends StatefulWidget {
 }
 
 class _OrderScreenState extends State<OrderScreen> {
-  
+
   Order? _currentOrder; 
-  late double _pendingPrice; 
+  late double _pendingPrice;
 
   @override
   void initState() {
     super.initState();
-    _currentOrder = widget.initialOrder;
-    _pendingPrice = _generateRandomPrice(); 
+    _pendingPrice = _generateRandomPrice();
+    
+    final orderProvider = Provider.of<OrderProvider>(context, listen: false);
+    if (orderProvider.isProcessing && orderProvider.currentlyProcessingOrderId != null) {
+      _currentOrder = Order(
+        id: orderProvider.currentlyProcessingOrderId!,
+        status: OrderStatus.pending, 
+        items: [], 
+        totalPrice: 0.0, 
+        creationTimeMillis: 0,
+      );
+    }
   }
 
   double _generateRandomPrice() {
     final random = Random();
-    return (30000 + random.nextInt(70001)).toDouble(); 
+    return (30000 + random.nextInt(70001)).toDouble();
+  }
+
+  String _getStatusMessage(int secondsRemaining) {
+    if (secondsRemaining > 5) {
+      return "Pesanan sedang dimasak";
+    } else if (secondsRemaining >= 1) {
+      return "Pesanan sedang dikemas";
+    } else {
+      return "Pesanan sudah siap diambil!";
+    }
   }
 
   void _createAndProcessOrder() {
     final uniqueId = 'FD_P_${DateTime.now().millisecondsSinceEpoch}';
 
     final newOrderModel = OrderModel(
-      orderId: uniqueId, 
+      orderId: uniqueId,
       restaurantName: widget.placeName,
-      totalPrice: _pendingPrice, 
-      orderDate: DateTime.now(), 
+      totalPrice: _pendingPrice,
+      orderDate: DateTime.now(),
       items: [
         OrderItem(
           menuItem: MenuItem(id: 'm1', name: 'Ayam Goreng', price: _pendingPrice, imageUrl: 'https://via.placeholder.com/150'), 
           quantity: 1,
         ),
       ],
-      status: 'Siap Diambil', 
+      status: 'Menunggu Konfirmasi', 
     );
-    
+
     Provider.of<OrderProvider>(context, listen: false).addOrder(newOrderModel);
 
-    final newOrder = Order(
-      id: uniqueId, 
-      status: OrderStatus.onDelivery, 
-      items: ['Ayam Goreng'], 
-      totalPrice: _pendingPrice,
-      creationTimeMillis: DateTime.now().millisecondsSinceEpoch, 
-    );
+    Provider.of<OrderProvider>(context, listen: false).startOrderProcessing(uniqueId);
 
     setState(() {
-      _currentOrder = newOrder;
+      _currentOrder = Order(
+        id: uniqueId,
+        status: OrderStatus.pending,
+        items: ['Ayam Goreng'],
+        totalPrice: _pendingPrice,
+        creationTimeMillis: DateTime.now().millisecondsSinceEpoch,
+      );
     });
-    
-  }
-
-
-  String _getStatus() {
-    if (_currentOrder == null || _currentOrder!.status == OrderStatus.pending) {
-       return "Pesanan Menunggu Konfirmasi (klik tombol 'Pesan')."; 
-    }
-    return "Pesanan sudah siap, silakan pick up";
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final orderProvider = Provider.of<OrderProvider>(context);
     
-    final bool isOrderPending = _currentOrder == null || _currentOrder!.status == OrderStatus.pending;
-    final bool isOrderReady = _currentOrder != null && _currentOrder!.status == OrderStatus.onDelivery;
+    final bool isThisOrderProcessing = 
+        _currentOrder != null && 
+        orderProvider.isProcessing && 
+        orderProvider.currentlyProcessingOrderId == _currentOrder!.id;
+        
+    final bool isTimerFinished = 
+        _currentOrder != null && 
+        !orderProvider.isProcessing && 
+        orderProvider.currentlyProcessingOrderId == null;
+        
+    final bool isOrderPending = _currentOrder == null || (_currentOrder != null && !isThisOrderProcessing && !isTimerFinished);
 
     return Scaffold(
       appBar: AppBar(
@@ -99,7 +115,7 @@ class _OrderScreenState extends State<OrderScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            
+
             if (isOrderPending) ...[
               const Text(
                 "Pesanan 'Ayam Goreng' siap dibuat.",
@@ -108,46 +124,69 @@ class _OrderScreenState extends State<OrderScreen> {
               ),
               const SizedBox(height: 20),
               Text(
-                "Harga: Rp ${_pendingPrice.toStringAsFixed(0)}", 
+                "Harga: Rp ${_pendingPrice.toStringAsFixed(0)}",
                 style: const TextStyle(fontSize: 16),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 20),
               ElevatedButton(
-                onPressed: _createAndProcessOrder, 
+                onPressed: _createAndProcessOrder,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
                   padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 ),
-                child: const Text('Pesan', style: TextStyle(color: Colors.white, fontSize: 18)), 
+                child: const Text('Pesan', style: TextStyle(color: Colors.white, fontSize: 18)),
               ),
             ],
-            
-            if (isOrderReady) ...[
+
+            if (isThisOrderProcessing) ...[
+              const CircularProgressIndicator(),
+              const SizedBox(height: 30),
               Text(
-                _getStatus(), 
-                style: const TextStyle(fontSize: 22),
+                _getStatusMessage(orderProvider.secondsRemaining), 
+                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 10),
+              Text(
+                "Est. Waktu tersisa: ${orderProvider.secondsRemaining} detik",
+                style: TextStyle(fontSize: 16, color: Colors.grey[700]),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 20),
+              const Text(
+                "Mohon menunggu sebentar...",
+                style: TextStyle(fontSize: 16),
+                textAlign: TextAlign.center,
+              ),
             ],
 
-            
-            if (isOrderReady) ...[
+            if (isTimerFinished) ...[
+              const Text(
+                "Pesanan sudah siap, silakan pick up",
+                style: TextStyle(fontSize: 22),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 20),
               const Text(
                 "Pesanan sudah siap diambil!",
-                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.green),
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.green),
+                textAlign: TextAlign.center,
               ),
               const SizedBox(height: 40),
               ElevatedButton(
                 onPressed: () {
                   final tabProvider = Provider.of<TabProvider>(context, listen: false);
+
+                  setState(() {
+                    _currentOrder = null;
+                  });
                   
-                  Navigator.pop(context); 
-                  
+                  Navigator.pop(context);
+
                   Future.microtask(() {
-                    tabProvider.changeTab(2);
+                    tabProvider.changeTab(2); 
 
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Pesanan selesai, membuka Riwayat Pesanan.')),
@@ -155,7 +194,7 @@ class _OrderScreenState extends State<OrderScreen> {
                   });
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
+                  backgroundColor: const Color.fromRGBO(39, 0, 197, 1),
                   padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 ),
