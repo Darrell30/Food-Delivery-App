@@ -37,18 +37,38 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<void> _logout() async {
-    // Clear data from providers
     Provider.of<UserData>(context, listen: false).logout();
     Provider.of<OrderProvider>(context, listen: false).clearOrders();
     Provider.of<TabProvider>(context, listen: false).resetTab();
 
-    // Navigate back to Login and remove all other screens
     if (mounted) {
       Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
         MaterialPageRoute(builder: (context) => const LoginScreen()),
         (route) => false,
       );
     }
+  }
+
+  Future<bool?> _showLogoutConfirmationDialog() {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Confirm Logout'),
+          content: const Text('Are you sure you want to log out?'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('No'),
+              onPressed: () => Navigator.of(context).pop(false),
+            ),
+            TextButton(
+              child: const Text('Yes', style: TextStyle(color: Colors.red)),
+              onPressed: () => Navigator.of(context).pop(true),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Future<void> _pickImage(ImageSource source) async {
@@ -91,11 +111,9 @@ class _ProfilePageState extends State<ProfilePage> {
     final userData = Provider.of<UserData>(context, listen: false);
     
     if (_isEditing) {
-      // If we are currently saving
       await userData.updateUserName(_nameController.text);
       if (mounted) FocusScope.of(context).unfocus();
     } else {
-      // If we are about to start editing, sync the controller with the latest name
       _nameController.text = userData.userName;
     }
     
@@ -297,7 +315,12 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Widget _buildLogoutButton() {
     return TextButton(
-      onPressed: _logout,
+      onPressed: () async {
+        final bool? shouldLogout = await _showLogoutConfirmationDialog();
+        if (shouldLogout ?? false) {
+          await _logout();
+        }
+      },
       child: const Text("Log Out",
           style: TextStyle(
               color: accentColor, fontSize: 16, fontWeight: FontWeight.bold)),

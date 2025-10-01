@@ -14,11 +14,8 @@ class UserData extends ChangeNotifier {
   String get profileImagePath => _profileImagePath;
   List<OrderModel> get orders => _orders;
 
-  // ✅ FIX: The constructor MUST be empty to prevent the app from freezing on launch.
   UserData();
 
-  // This function is for a "keep me logged in" feature, but should
-  // only be called from the UI after the app has started.
   Future<void> loadData() async {
     final prefs = await SharedPreferences.getInstance();
     _userName = prefs.getString('userName') ?? 'Enter Your Name';
@@ -57,13 +54,20 @@ class UserData extends ChangeNotifier {
     notifyListeners();
   }
 
-  // The logout function should NOT notify listeners to prevent race conditions
   Future<void> logout() async {
     _userName = "Enter Your Name";
     _userAddress = "Set my address";
     _profileImagePath = "";
     _orders = [];
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('isLoggedIn', false);
+    await prefs.remove('userName');
+    await prefs.remove('userAddress');
+    await prefs.remove('profileImagePath');
+    await prefs.remove('userOrders');
   }
+
 
   Future<void> addNewOrder(OrderModel newOrder) async {
     _orders.insert(0, newOrder);

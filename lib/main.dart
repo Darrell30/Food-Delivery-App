@@ -9,6 +9,7 @@ import 'orders/orders_page.dart';
 import 'Search/search_screen.dart';
 import 'profile/profile.dart';
 import 'profile/screens/login_screen.dart';
+import 'profile/screens/auth_check_screen.dart';
 
 void main() {
   runApp(
@@ -35,7 +36,7 @@ class FoodDeliveryApp extends StatelessWidget {
         primaryColor: const Color.fromRGBO(39, 0, 197, 1),
         fontFamily: 'Poppins',
       ),
-      home: const LoginScreen(),
+      home: const AuthCheckScreen(),
     );
   }
 }

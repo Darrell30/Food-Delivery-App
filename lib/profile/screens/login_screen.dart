@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:food_delivery_app/main.dart';
 import 'package:food_delivery_app/user_data.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -26,32 +27,30 @@ class _LoginScreenState extends State<LoginScreen> {
     if (_formKey.currentState?.validate() ?? false) {
       setState(() => _isLoading = true);
 
-      // Simulate a network delay
       await Future.delayed(const Duration(seconds: 1));
 
       final email = _emailController.text.trim();
       final password = _passwordController.text.trim();
 
       if (email == _correctEmail && password == _correctPassword) {
+        // ✅ --- ADD THIS LOGIC --- ✅
+        // 1. Set the logged in flag to true
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('isLoggedIn', true);
+
+        // 2. Load the user's data
         if (mounted) {
           await Provider.of<UserData>(context, listen: false).loadFixedUserData();
         }
+        // --- END ADD ---
 
-        // Navigate to the main app screen on success
         if (mounted) {
           Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (context) => const MainPage()),
           );
         }
       } else {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Invalid email or password. Please try again.'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
+        // ... error handling
       }
 
       if (mounted) {
@@ -59,6 +58,7 @@ class _LoginScreenState extends State<LoginScreen> {
       }
     }
   }
+
 
   @override
   void dispose() {
