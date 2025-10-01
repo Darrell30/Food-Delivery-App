@@ -37,10 +37,12 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<void> _logout() async {
+    // Clear data from providers
     Provider.of<UserData>(context, listen: false).logout();
     Provider.of<OrderProvider>(context, listen: false).clearOrders();
     Provider.of<TabProvider>(context, listen: false).resetTab();
 
+    // Navigate back to Login and remove all other screens
     if (mounted) {
       Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
         MaterialPageRoute(builder: (context) => const LoginScreen()),
@@ -52,7 +54,6 @@ class _ProfilePageState extends State<ProfilePage> {
   Future<void> _pickImage(ImageSource source) async {
     final XFile? image = await _picker.pickImage(source: source, imageQuality: 80);
     if (image != null && mounted) {
-      // Save the file path when a new image is picked
       Provider.of<UserData>(context, listen: false)
           .updateProfileImagePath(image.path);
     }
@@ -90,8 +91,12 @@ class _ProfilePageState extends State<ProfilePage> {
     final userData = Provider.of<UserData>(context, listen: false);
     
     if (_isEditing) {
+      // If we are currently saving
       await userData.updateUserName(_nameController.text);
       if (mounted) FocusScope.of(context).unfocus();
+    } else {
+      // If we are about to start editing, sync the controller with the latest name
+      _nameController.text = userData.userName;
     }
     
     if (mounted) {
@@ -123,10 +128,6 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     final userData = Provider.of<UserData>(context);
 
-    if (!_isEditing && _nameController.text != userData.userName) {
-      _nameController.text = userData.userName;
-    }
-
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -142,7 +143,7 @@ class _ProfilePageState extends State<ProfilePage> {
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
         children: [
           const SizedBox(height: 20),
-          _buildHeader(userData), // This is where the profile pic logic is
+          _buildHeader(userData),
           const SizedBox(height: 20),
           const Divider(),
           _buildMenuListItem(
@@ -194,21 +195,15 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  // UPDATED: Logic to correctly load profile image
   Widget _buildHeader(UserData userData) {
     ImageProvider? backgroundImage;
     if (userData.profileImagePath.isNotEmpty) {
       if (userData.profileImagePath.startsWith('assets/')) {
-        // It's an asset path
         backgroundImage = AssetImage(userData.profileImagePath);
       } else {
-        // It's a file path (from camera/gallery)
         final file = File(userData.profileImagePath);
-        if (file.existsSync()) { // Check if the file actually exists
+        if (file.existsSync()) {
           backgroundImage = FileImage(file);
-        } else {
-          // Fallback if the file was deleted or path is invalid
-          backgroundImage = null;
         }
       }
     }
@@ -247,7 +242,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       style: const TextStyle(
                           fontSize: 20, fontWeight: FontWeight.bold)),
               const SizedBox(height: 4),
-              Text("admin@gmail.com", // Changed to fixed email as per login screen
+              Text("admin@gmail.com",
                   style: TextStyle(fontSize: 14, color: Colors.grey[600])),
             ],
           ),
