@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 enum OrderStatus { all, pending, onDelivery, completed }
 
 class Order {
@@ -5,14 +7,14 @@ class Order {
   final OrderStatus status;
   final List<String> items;
   final double totalPrice;
-  final int creationTimeMillis; 
+  final int creationTimeMillis;
 
   Order({
     required this.id,
     required this.status,
     required this.items,
     required this.totalPrice,
-    required this.creationTimeMillis, 
+    required this.creationTimeMillis,
   });
 
   factory Order.fromJson(Map<String, dynamic> json) {
@@ -28,7 +30,7 @@ class Order {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'status': status.name, 
+      'status': status.name,
       'items': items,
       'totalPrice': totalPrice,
       'creationTimeMillis': creationTimeMillis,
@@ -36,13 +38,14 @@ class Order {
   }
 }
 
+// Data awal untuk pengujian
 final List<Order> initialOrdersList = [
   Order(
     id: 'ORD001',
     status: OrderStatus.completed,
     items: ['Pizza', 'Cola'],
     totalPrice: 150000,
-    creationTimeMillis: DateTime.now().millisecondsSinceEpoch - 600000, 
+    creationTimeMillis: DateTime.now().millisecondsSinceEpoch - 600000,
   ),
   Order(
     id: 'ORD002',
@@ -50,12 +53,5 @@ final List<Order> initialOrdersList = [
     items: ['Burger'],
     totalPrice: 75000,
     creationTimeMillis: DateTime.now().millisecondsSinceEpoch - 60000,
-  ),
-  Order(
-    id: 'ORD004',
-    status: OrderStatus.completed,
-    items: ['Noodles', 'Ice Tea'],
-    totalPrice: 60000,
-    creationTimeMillis: DateTime.now().millisecondsSinceEpoch - 1200000,
   ),
 ];

@@ -9,16 +9,13 @@ class OrdersPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // orderProvider akan listen terhadap perubahan di OrderProvider
     final orderProvider = Provider.of<OrderProvider>(context);
     final allOrders = orderProvider.orderHistory;
-    
-    // final isLoading = orderProvider.isLoading; // <--- BARIS INI DIHAPUS
+    final isLoading = orderProvider.isLoading;
 
-    // Perhatikan status yang kamu gunakan, sesuaikan dengan status di OrderModel/Provider
+    // Filter the list for each tab
     final pendingOrders = allOrders.where((order) => order.status == 'pending').toList();
-    // Gunakan 'Siap Diambil' yang kita set di OrderScreen.dart jika itu adalah status aktif
-    final onDeliveryOrders = allOrders.where((order) => order.status == 'Siap Diambil' || order.status == 'on_delivery').toList(); 
+    final onDeliveryOrders = allOrders.where((order) => order.status == 'on_delivery').toList();
     final completedOrders = allOrders.where((order) => order.status == 'Selesai').toList();
 
     return DefaultTabController(
@@ -36,15 +33,16 @@ class OrdersPage extends StatelessWidget {
             ],
           ),
         ),
-        // Hapus logika isLoading dan langsung tampilkan TabBarView
-        body: TabBarView(
-          children: [
-            _buildOrderList(context, pendingOrders),
-            _buildOrderList(context, allOrders),
-            _buildOrderList(context, onDeliveryOrders),
-            _buildOrderList(context, completedOrders),
-          ],
-        ),
+        body: isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : TabBarView(
+                children: [
+                  _buildOrderList(context, pendingOrders),
+                  _buildOrderList(context, allOrders),
+                  _buildOrderList(context, onDeliveryOrders),
+                  _buildOrderList(context, completedOrders),
+                ],
+              ),
       ),
     );
   }
@@ -52,10 +50,13 @@ class OrdersPage extends StatelessWidget {
   Widget _buildOrderList(BuildContext context, List<OrderModel> orders) {
     if (orders.isEmpty) {
       return const Center(
-        child: Text('Tidak ada pesanan di kategori ini.', style: TextStyle(color: Colors.grey)),
+        child: Text(
+          'Tidak ada pesanan di kategori ini.',
+          style: TextStyle(fontSize: 16, color: Colors.grey),
+        ),
       );
     }
-    // Mengurutkan dari yang terbaru (b.orderDate > a.orderDate)
+    // Sort orders from newest to oldest
     orders.sort((a, b) => b.orderDate.compareTo(a.orderDate));
     
     return ListView.builder(

@@ -1,94 +1,87 @@
 import 'dart:async';
-import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:flutter/material.dart'; // <-- 1. IMPORT YANG BENAR
 import 'package:food_delivery_app/models/order_model.dart';
-import 'package:food_delivery_app/models/menu_item.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class OrderProvider extends ChangeNotifier {
-  final List<OrderModel> _orderHistory = [
-    OrderModel(
-      orderId: 'FD12345',
-      restaurantName: 'Burger Queen',
-      totalPrice: 65000,
-      orderDate: DateTime(2025, 9, 27, 19, 30),
-      items: [
-        OrderItem(
-          menuItem: MenuItem(id: 'b1', name: 'Beef Burger', price: 45000, imageUrl: 'https://via.placeholder.com/150'),
-          quantity: 1,
-        ),
-        OrderItem(
-          menuItem: MenuItem(id: 'b2', name: 'Fries', price: 20000, imageUrl: 'https://via.placeholder.com/150'),
-          quantity: 1,
-        ),
-      ],
-      status: 'Selesai',
-    ),
-    OrderModel(
-      orderId: 'FD12346',
-      restaurantName: 'Pizza Palace',
-      totalPrice: 100000,
-      orderDate: DateTime(2025, 9, 25, 12, 15),
-      status: 'Dibatalkan',
-      items: [
-        OrderItem(
-          menuItem: MenuItem(id: 'p1', name: 'Pizza Margherita', price: 85000, imageUrl: 'https://via.placeholder.com/150'),
-          quantity: 1,
-        ),
-        OrderItem(
-          menuItem: MenuItem(id: 'p2', name: 'Cola', price: 15000, imageUrl: 'https://via.placeholder.com/150'),
-          quantity: 1,
-        ),
-      ],
-    ),
-  ];
+//                           ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 2. TAMBAHKAN INI
+class OrderProvider with ChangeNotifier {
+  static const String _ordersKey = 'my_order_history';
+  List<OrderModel> _orderHistory = [];
+  bool _isLoading = true;
 
   int _orderProcessingTime = 0;
   Timer? _processingTimer;
   String? _currentlyProcessingOrderId;
 
+  List<OrderModel> get orderHistory => _orderHistory;
+  bool get isLoading => _isLoading;
   bool get isProcessing => _orderProcessingTime > 0;
   int get secondsRemaining => _orderProcessingTime;
   String? get currentlyProcessingOrderId => _currentlyProcessingOrderId;
 
-  List<OrderModel> get orderHistory => _orderHistory;
+  OrderProvider() {
+    loadOrders();
+  }
 
-  void addOrder(OrderModel newOrder) {
-    _orderHistory.insert(0, newOrder);
+  Future<void> loadOrders() async {
+    final prefs = await SharedPreferences.getInstance();
+    final String? ordersJsonString = prefs.getString(_ordersKey);
+    if (ordersJsonString != null && ordersJsonString.isNotEmpty) {
+      try {
+        final List<dynamic> ordersJson = jsonDecode(ordersJsonString);
+        _orderHistory = ordersJson.map((json) => OrderModel.fromJson(json)).toList();
+      } catch (e) {
+        _orderHistory = [];
+      }
+    } else {
+      _orderHistory = [];
+    }
+    _isLoading = false;
     notifyListeners();
   }
-  
-  void _updateOrderStatus(String orderId, String newStatus) {
-    try {
-      final orderIndex = _orderHistory.indexWhere((order) => order.orderId == orderId);
-      if (orderIndex != -1) {
-        final oldOrder = _orderHistory[orderIndex];
-        _orderHistory[orderIndex] = OrderModel(
-          orderId: oldOrder.orderId,
-          restaurantName: oldOrder.restaurantName,
-          items: oldOrder.items,
-          totalPrice: oldOrder.totalPrice,
-          orderDate: oldOrder.orderDate,
-          status: newStatus,
-        );
-        notifyListeners();
-      }
-    } catch (e) {
-      debugPrint('Error updating order status: $e');
+
+  Future<void> _saveOrders() async {
+    final prefs = await SharedPreferences.getInstance();
+    final List<Map<String, dynamic>> ordersJson = _orderHistory.map((order) => order.toJson()).toList();
+    await prefs.setString(_ordersKey, jsonEncode(ordersJson));
+  }
+
+  Future<void> addOrder(OrderModel newOrder) async {
+    _orderHistory.insert(0, newOrder);
+    notifyListeners();
+    await _saveOrders();
+  }
+
+  Future<void> _updateOrderStatus(String orderId, String newStatus) async {
+    // 3. PERBAIKI BAGIAN INI DARI 'order.id' MENJADI 'order.orderId'
+    final orderIndex = _orderHistory.indexWhere((order) => order.orderId == orderId);
+    if (orderIndex != -1) {
+      final oldOrder = _orderHistory[orderIndex];
+      _orderHistory[orderIndex] = OrderModel(
+        orderId: oldOrder.orderId,
+        restaurantName: oldOrder.restaurantName,
+        items: oldOrder.items,
+        totalPrice: oldOrder.totalPrice,
+        orderDate: oldOrder.orderDate,
+        status: newStatus,
+      );
+      notifyListeners();
+      await _saveOrders();
     }
   }
 
   void startOrderProcessing(String orderId) {
-    if (_processingTimer != null) {
-      _processingTimer!.cancel();
-    }
+    if (_processingTimer != null && _processingTimer!.isActive) return;
     
     _currentlyProcessingOrderId = orderId;
-    _orderProcessingTime = 15; 
-    _updateOrderStatus(orderId, 'Diproses (Memasak)'); 
+    _orderProcessingTime = 15;
+    _updateOrderStatus(orderId, 'Diproses (Memasak)');
 
     _processingTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_orderProcessingTime > 0) {
         _orderProcessingTime--;
-        notifyListeners(); 
+        notifyListeners();
       } else {
         timer.cancel();
         _processingTimer = null;
@@ -96,17 +89,17 @@ class OrderProvider extends ChangeNotifier {
       }
     });
   }
-  
+
   void _finishProcessing(String orderId) {
     _updateOrderStatus(orderId, 'Siap Diambil');
-    
     _currentlyProcessingOrderId = null;
     notifyListeners();
   }
-
-  void clearOrders() {
+  
+  Future<void> clearOrders() async {
     _orderHistory.clear();
     notifyListeners();
+    await _saveOrders();
   }
 
   @override

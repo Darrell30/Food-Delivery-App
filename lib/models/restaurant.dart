@@ -10,6 +10,7 @@ class Restaurant {
   final String cuisineType;
   final double rating;
   final String tier;
+  final String imageUrl;
   final List<MenuItem> menu;
 
   Restaurant({
@@ -18,6 +19,7 @@ class Restaurant {
     required this.cuisineType,
     required this.rating,
     required this.tier,
+    required this.imageUrl,
     required this.menu,
   });
 
