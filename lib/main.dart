@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'providers/tab_provider.dart';
-import 'providers/order_provider.dart';
-import 'user_data.dart';
-import 'home_screen.dart';
-import 'screens/pickup_screen.dart';
-import 'orders/orders_page.dart';
-import 'Search/search_screen.dart';
-import 'profile/profile.dart';
-import 'profile/screens/login_screen.dart';
-import 'profile/screens/auth_check_screen.dart';
+import 'package:food_delivery_app/providers/tab_provider.dart';
+import 'package:food_delivery_app/providers/order_provider.dart';
+import 'package:food_delivery_app/user_data.dart';
+import 'package:food_delivery_app/home_screen.dart';
+import 'package:food_delivery_app/screens/pickup_screen.dart';
+import 'package:food_delivery_app/orders/orders_page.dart';
+import 'package:food_delivery_app/Search/search_screen.dart';
+import 'package:food_delivery_app/profile/profile.dart';
 
 void main() {
   runApp(
@@ -34,9 +32,9 @@ class FoodDeliveryApp extends StatelessWidget {
       title: "Food Delivery",
       theme: ThemeData(
         primaryColor: const Color.fromRGBO(39, 0, 197, 1),
-        fontFamily: 'Poppins',
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromRGBO(39, 0, 197, 1)),
       ),
-      home: const AuthCheckScreen(),
+      home: const MainPage(),
     );
   }
 }
@@ -56,36 +54,26 @@ class MainPage extends StatelessWidget {
       ProfilePage(),
     ];
 
-    return WillPopScope(
-      onWillPop: () async {
-        if (tabProvider.currentIndex != 0) {
-          tabProvider.changeTab(0);
-          return false;
-        }
-        return true;
-      },
-      child: Scaffold(
-        body: IndexedStack(
-          index: tabProvider.currentIndex,
-          children: screens,
-        ),
-        bottomNavigationBar: BottomNavigationBar(
-          currentIndex: tabProvider.currentIndex,
-          selectedItemColor: const Color.fromRGBO(39, 0, 197, 1),
-          unselectedItemColor: Colors.grey,
-          type: BottomNavigationBarType.fixed,
-          onTap: (index) {
-            tabProvider.changeTab(index);
-          },
-          items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-            BottomNavigationBarItem(
-                icon: Icon(Icons.store_mall_directory), label: "Pickup"),
-            BottomNavigationBarItem(icon: Icon(Icons.receipt), label: "Orders"),
-            BottomNavigationBarItem(icon: Icon(Icons.search), label: "Search"),
-            BottomNavigationBarItem(icon: Icon(Icons.person), label: 'You'),
-          ],
-        ),
+    return Scaffold(
+      body: IndexedStack(
+        index: tabProvider.currentIndex,
+        children: screens,
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: tabProvider.currentIndex,
+        selectedItemColor: const Color.fromRGBO(39, 0, 197, 1),
+        unselectedItemColor: Colors.grey,
+        type: BottomNavigationBarType.fixed,
+        onTap: (index) {
+          Provider.of<TabProvider>(context, listen: false).changeTab(index);
+        },
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
+          BottomNavigationBarItem(icon: Icon(Icons.store_mall_directory), label: "Pickup"),
+          BottomNavigationBarItem(icon: Icon(Icons.receipt), label: "Orders"),
+          BottomNavigationBarItem(icon: Icon(Icons.search), label: "Search"),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'You'),
+        ],
       ),
     );
   }
