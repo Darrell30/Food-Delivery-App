@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/order_model.dart';
 
@@ -8,11 +9,22 @@ class UserData extends ChangeNotifier {
   String _userAddress = "Set my address";
   String _profileImagePath = "";
   List<OrderModel> _orders = [];
+  double _balance = 134000.0;
 
   String get userName => _userName;
   String get userAddress => _userAddress;
   String get profileImagePath => _profileImagePath;
   List<OrderModel> get orders => _orders;
+  double get balance => _balance;
+
+  String get formattedBalance {
+    final formatCurrency = NumberFormat.currency(
+      locale: 'id_ID',
+      symbol: 'Rp ',
+      decimalDigits: 0,
+    );
+    return formatCurrency.format(_balance);
+  }
 
   UserData();
 

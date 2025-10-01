@@ -20,9 +20,13 @@ class Restaurant {
     required this.rating,
     required this.tier,
     required this.imageUrl,
-    required this.menu,
+    required this.menu, required String deliveryTime, required int deliveryFee,
   });
 
   factory Restaurant.fromJson(Map<String, dynamic> json) => _$RestaurantFromJson(json);
+
+  get deliveryTime => null;
+
+  get deliveryFee => null;
   Map<String, dynamic> toJson() => _$RestaurantToJson(this);
 }
