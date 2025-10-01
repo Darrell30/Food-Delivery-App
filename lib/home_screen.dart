@@ -63,13 +63,13 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: const _CustomAppBar(),
+      appBar: const _CustomAppBar(), // Menggunakan AppBar yang sudah dioptimalkan
       body: ListView(
         padding: const EdgeInsets.all(10),
         children: [
           _buildPromoSlider(),
           _buildPageIndicator(),
-          const _BalanceCard(),
+          const _BalanceCard(), // Menggunakan BalanceCard yang sudah dioptimalkan
           const SizedBox(height: 20),
           const SectionTitle(title: "Order Within Vicinity"),
           const SizedBox(height: 10),
@@ -172,14 +172,13 @@ class _CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    final String userAddress = context.select((UserData data) => data.userAddress);
-    final String profileImagePath = context.select((UserData data) => data.profileImagePath);
+    final userData = context.watch<UserData>();
 
     ImageProvider? backgroundImage;
-    if (profileImagePath.isNotEmpty) {
-      backgroundImage = profileImagePath.startsWith('assets/')
-          ? AssetImage(profileImagePath)
-          : FileImage(File(profileImagePath));
+    if (userData.profileImagePath.isNotEmpty) {
+      backgroundImage = userData.profileImagePath.startsWith('assets/')
+          ? AssetImage(userData.profileImagePath)
+          : FileImage(File(userData.profileImagePath));
     }
 
     return AppBar(
@@ -213,20 +212,49 @@ class _CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               style: TextStyle(fontSize: 12, color: Color.fromRGBO(39, 0, 197, 1)),
             ),
             Text(
-              userAddress.isNotEmpty ? userAddress : "Set your address",
+              userData.userAddress.isNotEmpty ? userData.userAddress : "Set your address",
               style: const TextStyle(fontSize: 16, color: Colors.black, fontWeight: FontWeight.bold),
               overflow: TextOverflow.ellipsis,
             ),
           ],
         ),
       ),
+      // ### PERUBAHAN FUNGSI PANAH DI SINI ###
       actions: [
-        IconButton(
+        PopupMenuButton<int>(
+          tooltip: "Tampilkan opsi alamat",
           icon: const Icon(Icons.keyboard_arrow_down, color: Colors.black),
-          onPressed: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const BalanceScreen()),
-          ),
+          itemBuilder: (context) => [
+            // Item 1: Menampilkan alamat lengkap (tidak bisa diklik)
+            PopupMenuItem(
+              enabled: false,
+              child: Text(
+                userData.userAddress,
+                style: const TextStyle(fontWeight: FontWeight.normal, color: Colors.black87),
+              ),
+            ),
+            const PopupMenuDivider(),
+            // Item 2: Tombol untuk ke halaman Balance
+            PopupMenuItem(
+              value: 1, // Angka 1 untuk identifikasi aksi "My Balance"
+              child: Row(
+                children: const [
+                  Icon(Icons.account_balance_wallet, color: Colors.blue),
+                  SizedBox(width: 10),
+                  Text("My Balance"),
+                ],
+              ),
+            ),
+          ],
+          onSelected: (value) {
+            // Aksi saat item dipilih
+            if (value == 1) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const BalanceScreen()),
+              );
+            }
+          },
         ),
         const SizedBox(width: 10),
       ],
@@ -255,11 +283,9 @@ class _BalanceCard extends StatelessWidget {
               child: Icon(Icons.account_balance_wallet, color: Color(0xFF00838F)),
             ),
             const SizedBox(width: 12),
-            // ### PERUBAHAN DI SINI ###
-            // Mengganti Selector dengan Text manual
-            const Text(
-              "Rp 138.000",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            Text(
+              context.watch<UserData>().formattedBalance,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const Spacer(),
             _ActionItem(
