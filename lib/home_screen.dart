@@ -173,7 +173,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: GestureDetector(
                   onTap: () {
                     final Restaurant? restaurantData =
-                        _searchService.getRestaurantByName('Sushi World');
+                        _searchService.getRestaurantByName('Sushi Tei');
                     if (restaurantData != null) {
                       Navigator.push(
                         context,
@@ -186,7 +186,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     }
                   },
                   child: const ProductCard(
-                    name: "Sushi World",
+                    name: "Sushi Tei",
                     subtitle: "20% OFF",
                     imagePath: "assets/icons/Sushi.jpeg",
                   ),
