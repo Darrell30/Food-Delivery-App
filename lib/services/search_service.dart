@@ -8,6 +8,7 @@ class SearchService {
       id: 'r1',
       name: 'Sate Padang Mak Ciak',
       cuisineType: 'Indonesian',
+      isFeatured: true,
       rating: 4.9,
       tier: 'Top Tier',
       imageUrl: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?q=80&w=1974',
@@ -22,6 +23,7 @@ class SearchService {
       id: 'r2',
       name: 'Nasi Goreng Mantap',
       cuisineType: 'Indonesian',
+      hasDiscount: true,
       rating: 4.8,
       tier: 'Top Tier',
       imageUrl: 'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=500&q=80',
@@ -35,6 +37,7 @@ class SearchService {
     Restaurant(
       id: 'r4',
       name: 'Burger King',
+      isFeatured: true,
       cuisineType: 'Western',
       rating: 4.5,
       tier: 'Top Tier',
@@ -49,6 +52,7 @@ class SearchService {
      Restaurant(
       id: 'r5',
       name: 'Seven Eleven',
+      isFeatured: true,
       cuisineType: 'Western',
       rating: 4.7,
       tier: 'Top Tier',
@@ -67,6 +71,7 @@ class SearchService {
     Restaurant(
       id: 'r6',
       name: 'Ramen House',
+      hasDiscount: true,
       cuisineType: 'Japanese ',
       rating: 5.0,
       tier: 'Top Tier',
@@ -87,7 +92,8 @@ class SearchService {
     ),
     Restaurant(
       id: 'r7',
-      name: 'Sushi World',
+      name: 'Sushi Tei',
+      hasDiscount: true,
       cuisineType: 'Japanese ',
       rating: 4.8,
       tier: 'Top Tier',
@@ -102,6 +108,25 @@ class SearchService {
       ],
       deliveryTime: '20-30 min',
       deliveryFee: 5000,
+    ),
+    Restaurant(
+      id: 'r8',
+      name: 'Sate Maranggi',
+      isFeatured: true,
+      cuisineType: 'Indonesian',
+      rating: 5.0,
+      tier: 'Top Tier',
+      imageUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTfDiinV898T1PCFEBbwnKDLn-E3tO--m8cdQ&s',
+      menu: [
+        MenuItem(id: 'm31', name: 'Sate Maranggi', price: 36000, imageUrl: ''),
+        MenuItem(id: 'm32', name: 'Sate Kambing', price: 40000, imageUrl: ''),
+        MenuItem(id: 'm33', name: 'Sop Sapi', price: 25000, imageUrl: ''),
+        MenuItem(id: 'm34', name: 'Sop Kambing', price: 30000, imageUrl: ''),
+        MenuItem(id: 'm35', name: 'Nasi', price: 5000, imageUrl: ''),
+        MenuItem(id: 'm36', name: 'Es Teh Tawar', price: 5000, imageUrl: ''),
+      ],
+      deliveryTime: '20-30 min',
+      deliveryFee: 7500,
     ),
   ];
 
@@ -136,5 +161,15 @@ class SearchService {
     } catch (e) {
       return null; 
     }
+  }
+
+   Future<List<Restaurant>> getFeaturedRestaurants() async {
+    await Future.delayed(const Duration(seconds: 1));
+    return _allRestaurants.where((restaurant) => restaurant.isFeatured).toList();
+  }
+
+  Future<List<Restaurant>> getDiskon() async {
+    await Future.delayed(const Duration(seconds: 1));
+    return _allRestaurants.where((restaurant) => restaurant.hasDiscount).toList();
   }
 }

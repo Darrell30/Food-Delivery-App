@@ -9,6 +9,8 @@ import 'profile/screens/balance_screen.dart';
 import 'screens/restaurant_detail_page.dart';
 import 'services/search_service.dart';
 import 'models/restaurant.dart';
+import 'screens/nearby_restaurants_page.dart';
+import 'screens/discount_page.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -19,14 +21,12 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final SearchService _searchService = SearchService();
-
   final List<String> promoImagePaths = [
     'assets/icons/promo1.jpg',
     'assets/icons/promo2.jpg',
     'assets/icons/promo3.jpg',
     'assets/icons/promo4.jpg',
   ];
-
   late final PageController _pageController;
   late final Timer _timer;
   int _currentPage = 0;
@@ -34,11 +34,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _pageController = PageController(
-      initialPage: 0,
-      viewportFraction: 0.85,
-    );
-
+    _pageController = PageController(initialPage: 0, viewportFraction: 0.85);
     _timer = Timer.periodic(const Duration(seconds: 4), (timer) {
       if (mounted) {
         if (_currentPage < promoImagePaths.length - 1) {
@@ -47,11 +43,9 @@ class _HomeScreenState extends State<HomeScreen> {
           _currentPage = 0;
         }
         if (_pageController.hasClients) {
-          _pageController.animateToPage(
-            _currentPage,
-            duration: const Duration(milliseconds: 400),
-            curve: Curves.easeIn,
-          );
+          _pageController.animateToPage(_currentPage,
+              duration: const Duration(milliseconds: 400),
+              curve: Curves.easeIn);
         }
       }
     });
@@ -76,7 +70,16 @@ class _HomeScreenState extends State<HomeScreen> {
           _buildPageIndicator(),
           const _BalanceCard(),
           const SizedBox(height: 20),
-          const SectionTitle(title: "Order Within Vicinity"),
+          SectionTitle(
+            title: "Order Within Vicinity",
+            onSeeAllTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const NearbyRestaurantsPage()),
+              );
+            },
+          ),
           const SizedBox(height: 10),
           Row(
             children: [
@@ -130,7 +133,15 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
           const SizedBox(height: 20),
-          const SectionTitle(title: "Special Offers for You"),
+          SectionTitle(
+            title: "Special Offers for You",
+            onSeeAllTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const DiscountPage()),
+              );
+            },
+          ),
           const SizedBox(height: 10),
           Row(
             children: [
@@ -158,7 +169,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               const SizedBox(width: 10),
-              //Sushi World
               Expanded(
                 child: GestureDetector(
                   onTap: () {
@@ -172,10 +182,6 @@ class _HomeScreenState extends State<HomeScreen> {
                             restaurant: restaurantData,
                           ),
                         ),
-                      );
-                    } else {
-                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Detail restoran "Sushi World" tidak ditemukan!')),
                       );
                     }
                   },
@@ -195,52 +201,44 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildPromoSlider() {
     return SizedBox(
-      height: 180.0,
-      child: PageView.builder(
-        controller: _pageController,
-        itemCount: promoImagePaths.length,
-        onPageChanged: (int page) {
-          setState(() {
-            _currentPage = page;
-          });
-        },
-        itemBuilder: (context, index) {
-          return Container(
-            margin: const EdgeInsets.symmetric(horizontal: 5.0),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: Image.asset(
-                promoImagePaths[index],
-                fit: BoxFit.cover,
-              ),
-            ),
-          );
-        },
-      ),
-    );
+        height: 180.0,
+        child: PageView.builder(
+            controller: _pageController,
+            itemCount: promoImagePaths.length,
+            onPageChanged: (int page) {
+              setState(() {
+                _currentPage = page;
+              });
+            },
+            itemBuilder: (context, index) {
+              return Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 5.0),
+                  child: ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: Image.asset(promoImagePaths[index],
+                          fit: BoxFit.cover)));
+            }));
   }
 
   Widget _buildPageIndicator() {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(promoImagePaths.length, (index) {
-        return AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 12),
-          height: 8,
-          width: _currentPage == index ? 24 : 8,
-          decoration: BoxDecoration(
-            color: _currentPage == index
-                ? Theme.of(context).primaryColor
-                : Colors.grey.shade300,
-            borderRadius: BorderRadius.circular(12),
-          ),
-        );
-      }),
-    );
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: List.generate(promoImagePaths.length, (index) {
+          return AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 12),
+              height: 8,
+              width: _currentPage == index ? 24 : 8,
+              decoration: BoxDecoration(
+                  color: _currentPage == index
+                      ? Theme.of(context).primaryColor
+                      : Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(12)));
+        }));
   }
 }
 
+// ### APPBAR DENGAN LATAR BELAKANG BARU ###
 class _CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   const _CustomAppBar();
 
@@ -255,83 +253,102 @@ class _CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           : FileImage(File(userData.profileImagePath));
     }
 
-    return AppBar(
-      elevation: 0,
-      backgroundColor: Colors.white,
-      leading: IconButton(
-        icon: CircleAvatar(
-          backgroundColor: const Color(0xFFF3F3F3),
-          backgroundImage: backgroundImage,
-          child: backgroundImage == null
-              ? const Icon(Icons.person, color: Colors.black54)
-              : null,
-        ),
-        onPressed: () => context.read<TabProvider>().changeTab(4),
-      ),
-      title: InkWell(
-        onTap: () async {
-          final newAddress = await Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const MapScreen()),
-          );
-          if (newAddress != null && newAddress is String) {
-            context.read<UserData>().updateUserAddress(newAddress);
-          }
-        },
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              "DELIVERING TO",
-              style: TextStyle(fontSize: 12, color: Color.fromRGBO(39, 0, 197, 1)),
+    return Container(
+      color: const Color.fromARGB(255, 143, 175, 255) .withOpacity(0.8), 
+      child: SafeArea(
+        child: AppBar(
+          elevation: 0,
+          backgroundColor: Colors.transparent,
+          leading: IconButton(
+            icon: CircleAvatar(
+              backgroundColor: Colors.white
+                  .withOpacity(0.2),
+              backgroundImage: backgroundImage,
+              child: backgroundImage == null
+                  ? const Icon(Icons.person,
+                      color: Colors.white)
+                  : null,
             ),
-            Text(
-              userData.userAddress.isNotEmpty ? userData.userAddress : "Set your address",
-              style: const TextStyle(fontSize: 16, color: Colors.black, fontWeight: FontWeight.bold),
-              overflow: TextOverflow.ellipsis,
+            onPressed: () => context.read<TabProvider>().changeTab(4),
+          ),
+          title: InkWell(
+            onTap: () async {
+              final newAddress = await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const MapScreen()),
+              );
+              if (newAddress != null && newAddress is String) {
+                context.read<UserData>().updateUserAddress(newAddress);
+              }
+            },
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  "DELIVERING TO",
+                  style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.white),
+                ),
+                Text(
+                  userData.userAddress.isNotEmpty
+                      ? userData.userAddress
+                      : "Set your address",
+                  style: const TextStyle(
+                      fontSize: 16,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
             ),
+          ),
+          actions: [
+            Consumer<UserData>(
+              builder: (context, userDataConsumer, child) {
+                return PopupMenuButton<int>(
+                  tooltip: "Tampilkan opsi alamat",
+                  icon: const Icon(Icons.keyboard_arrow_down,
+                      color: Colors.white),
+                  itemBuilder: (context) => [
+                    PopupMenuItem(
+                      enabled: false,
+                      child: Text(
+                        userDataConsumer.userAddress,
+                        style: const TextStyle(
+                            fontWeight: FontWeight.normal,
+                            color: Colors.black87),
+                      ),
+                    ),
+                    const PopupMenuDivider(),
+                    PopupMenuItem(
+                      value: 1,
+                      child: Row(
+                        children: const [
+                          Icon(Icons.account_balance_wallet,
+                              color: Colors.blue),
+                          SizedBox(width: 10),
+                          Text("My Balance"),
+                        ],
+                      ),
+                    ),
+                  ],
+                  onSelected: (value) {
+                    if (value == 1) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const BalanceScreen()),
+                      );
+                    }
+                  },
+                );
+              },
+            ),
+            const SizedBox(width: 10),
           ],
         ),
       ),
-      actions: [
-        Consumer<UserData>(
-          builder: (context, userDataConsumer, child) {
-            return PopupMenuButton<int>(
-              tooltip: "Tampilkan opsi alamat",
-              icon: const Icon(Icons.keyboard_arrow_down, color: Colors.black),
-              itemBuilder: (context) => [
-                PopupMenuItem(
-                  enabled: false,
-                  child: Text(
-                    userDataConsumer.userAddress,
-                    style: const TextStyle(fontWeight: FontWeight.normal, color: Colors.black87),
-                  ),
-                ),
-                const PopupMenuDivider(),
-                PopupMenuItem(
-                  value: 1,
-                  child: Row(
-                    children: const [
-                      Icon(Icons.account_balance_wallet, color: Color.fromRGBO(39, 0, 197, 1)),
-                      SizedBox(width: 10),
-                      Text("My Balance"),
-                    ],
-                  ),
-                ),
-              ],
-              onSelected: (value) {
-                if (value == 1) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const BalanceScreen()),
-                  );
-                }
-              },
-            );
-          },
-        ),
-        const SizedBox(width: 10),
-      ],
     );
   }
 
@@ -341,39 +358,32 @@ class _CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
 class _BalanceCard extends StatelessWidget {
   const _BalanceCard();
-
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 2,
-      shadowColor: Colors.grey.withOpacity(0.2),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        child: Row(
-          children: [
-            const CircleAvatar(
-              backgroundColor: Color(0xFFE0F7FA),
-              child: Icon(Icons.account_balance_wallet, color: Color.fromRGBO(39, 0, 197, 1)),
-            ),
-            const SizedBox(width: 12),
-            Text(
-              context.watch<UserData>().formattedBalance,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const Spacer(),
-            _ActionItem(
-              icon: Icons.add,
-              label: "Top Up",
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const BalanceScreen()),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+        elevation: 2,
+        shadowColor: Colors.grey.withOpacity(0.2),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Row(children: [
+              const CircleAvatar(
+                  backgroundColor: Color(0xFFE0F7FA),
+                  child: Icon(Icons.account_balance_wallet,
+                      color: Color(0xFF00838F))),
+              const SizedBox(width: 12),
+              Text(context.watch<UserData>().formattedBalance,
+                  style: const TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.bold)),
+              const Spacer(),
+              _ActionItem(
+                  icon: Icons.add,
+                  label: "Top Up",
+                  onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const BalanceScreen())))
+            ])));
   }
 }
 
@@ -381,36 +391,35 @@ class _ActionItem extends StatelessWidget {
   final IconData icon;
   final String label;
   final VoidCallback? onTap;
-
   const _ActionItem({required this.icon, required this.label, this.onTap});
-
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(30),
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            CircleAvatar(
-              radius: 20,
-              backgroundColor: const Color(0xFFE0F7FA),
-              child: Icon(icon, color: const Color(0xFF00838F), size: 22),
-            ),
-            const SizedBox(height: 5),
-            Text(label, style: const TextStyle(fontSize: 12)),
-          ],
-        ),
-      ),
-    );
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(30),
+        child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(mainAxisSize: MainAxisSize.min, children: [
+              CircleAvatar(
+                  radius: 20,
+                  backgroundColor: const Color(0xFFE0F7FA),
+                  child: Icon(icon, color: const Color(0xFF00838F), size: 22)),
+              const SizedBox(height: 5),
+              Text(label, style: const TextStyle(fontSize: 12))
+            ])));
   }
 }
 
 class SectionTitle extends StatelessWidget {
   final String title;
-  const SectionTitle({super.key, required this.title});
+  final VoidCallback? onSeeAllTap;
+
+  const SectionTitle({
+    super.key,
+    required this.title,
+    this.onSeeAllTap,
+  });
+
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -418,8 +427,13 @@ class SectionTitle extends StatelessWidget {
       children: [
         Text(title,
             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-        const Text("See All",
-            style: TextStyle(color: Color.fromRGBO(39, 0, 197, 1))),
+        InkWell(
+          onTap: onSeeAllTap,
+          child: const Text(
+            "See All",
+            style: TextStyle(color: Color.fromRGBO(39, 0, 197, 1)),
+          ),
+        ),
       ],
     );
   }

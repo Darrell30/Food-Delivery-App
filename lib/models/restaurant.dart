@@ -12,6 +12,8 @@ class Restaurant {
   final String tier;
   final String imageUrl;
   final List<MenuItem> menu;
+  final bool isFeatured;
+  final bool hasDiscount;
 
   Restaurant({
     required this.id,
@@ -21,6 +23,8 @@ class Restaurant {
     required this.tier,
     required this.imageUrl,
     required this.menu, required String deliveryTime, required int deliveryFee,
+    this.isFeatured = false,
+    this.hasDiscount = false,
   });
 
   factory Restaurant.fromJson(Map<String, dynamic> json) => _$RestaurantFromJson(json);
