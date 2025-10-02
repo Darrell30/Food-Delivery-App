@@ -234,12 +234,11 @@ class _CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               ),
             ),
             const PopupMenuDivider(),
-            // Item 2: Tombol untuk ke halaman Balance
             PopupMenuItem(
-              value: 1, // Angka 1 untuk identifikasi aksi "My Balance"
+              value: 1,
               child: Row(
                 children: const [
-                  Icon(Icons.account_balance_wallet, color: Colors.blue),
+                  Icon(Icons.account_balance_wallet, color: Color.fromRGBO(39, 0, 197, 1)),
                   SizedBox(width: 10),
                   Text("My Balance"),
                 ],
@@ -275,12 +274,12 @@ class _BalanceCard extends StatelessWidget {
       shadowColor: Colors.grey.withOpacity(0.2),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         child: Row(
           children: [
             const CircleAvatar(
               backgroundColor: Color(0xFFE0F7FA),
-              child: Icon(Icons.account_balance_wallet, color: Color(0xFF00838F)),
+              child: Icon(Icons.account_balance_wallet, color: Color.fromRGBO(39, 0, 197, 1)),
             ),
             const SizedBox(width: 12),
             Text(
@@ -322,8 +321,8 @@ class _ActionItem extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: 20,
-              backgroundColor: const Color(0xFFE0F7FA),
-              child: Icon(icon, color: const Color(0xFF00838F), size: 22),
+              backgroundColor: const Color.fromARGB(25, 0, 13, 255),
+              child: Icon(icon, color: const Color.fromRGBO(39, 0, 197, 1), size: 22),
             ),
             const SizedBox(height: 5),
             Text(label, style: const TextStyle(fontSize: 12)),
@@ -364,7 +363,7 @@ class ProductCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 180,
+      height:   200,
       decoration: BoxDecoration(
         color: Colors.grey[200],
         borderRadius: BorderRadius.circular(10),

@@ -8,6 +8,7 @@ import 'package:food_delivery_app/screens/pickup_screen.dart';
 import 'package:food_delivery_app/orders/orders_page.dart';
 import 'package:food_delivery_app/Search/search_screen.dart';
 import 'package:food_delivery_app/profile/profile.dart';
+import 'package:food_delivery_app/profile/screens/auth_check_screen.dart';
 
 void main() {
   runApp(
@@ -31,10 +32,11 @@ class FoodDeliveryApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: "Food Delivery",
       theme: ThemeData(
+        fontFamily: 'Poppins',
         primaryColor: const Color.fromRGBO(39, 0, 197, 1),
         colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromRGBO(39, 0, 197, 1)),
       ),
-      home: const MainPage(),
+      home: const AuthCheckScreen(),
     );
   }
 }

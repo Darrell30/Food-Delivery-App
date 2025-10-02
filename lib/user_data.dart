@@ -35,7 +35,7 @@ class UserData extends ChangeNotifier {
     _profileImagePath = prefs.getString('profileImagePath') ?? '';
 
     final String? ordersJson = prefs.getString('userOrders');
-    if (ordersJson != null) {
+    if (ordersJson != null && ordersJson.isNotEmpty) {
       final List<dynamic> ordersList = json.decode(ordersJson);
       _orders = ordersList.map((json) => OrderModel.fromJson(json)).toList();
     }
@@ -49,11 +49,11 @@ class UserData extends ChangeNotifier {
     _userName = "Darrell";
     await prefs.setString('userName', _userName);
 
-    _userAddress = "Jl. Tlk. Intan, Pejagalan, Kecamatan Penjaringan, Jkt Utara, Daerah Khusus Ibukota Jakarta 14450";
+    _userAddress = "Jl. Tlk. Intan, Pejagalan, Penjaringan, Jakarta";
     await prefs.setString('userAddress', _userAddress);
 
     String? currentProfilePath = prefs.getString('profileImagePath');
-    if (currentProfilePath == null || currentProfilePath.isEmpty || currentProfilePath.startsWith('assets/')) {
+    if (currentProfilePath == null || currentProfilePath.isEmpty) {
       _profileImagePath = "assets/icons/pfp.jpg";
     } else {
       _profileImagePath = currentProfilePath;
@@ -74,30 +74,27 @@ class UserData extends ChangeNotifier {
 
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('isLoggedIn', false);
-    await prefs.remove('userName');
-    await prefs.remove('userAddress');
-    await prefs.remove('profileImagePath');
-    await prefs.remove('userOrders');
+    // We leave the user's profile info saved for the next login
   }
-
 
   Future<void> addNewOrder(OrderModel newOrder) async {
     _orders.insert(0, newOrder);
     notifyListeners();
-
     final prefs = await SharedPreferences.getInstance();
     final List<Map<String, dynamic>> ordersList =
         _orders.map((order) => order.toJson()).toList();
     await prefs.setString('userOrders', json.encode(ordersList));
   }
   
+  // ✅ FIX: Implemented the missing logic
   Future<void> updateProfileImagePath(String newPath) async {
     _profileImagePath = newPath;
-    notifyListeners();
+    notifyListeners(); // Tell the UI to update
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('profileImagePath', newPath);
+    await prefs.setString('profileImagePath', newPath); // Save the new path
   }
 
+  // ✅ FIX: Implemented the missing logic
   Future<void> updateUserAddress(String newAddress) async {
     _userAddress = newAddress;
     notifyListeners();
@@ -105,6 +102,7 @@ class UserData extends ChangeNotifier {
     await prefs.setString('userAddress', newAddress);
   }
 
+  // ✅ FIX: Implemented the missing logic
   Future<void> updateUserName(String newName) async {
     _userName = newName;
     notifyListeners();

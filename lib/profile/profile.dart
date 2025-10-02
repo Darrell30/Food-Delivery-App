@@ -6,9 +6,9 @@ import '../user_data.dart';
 import '../providers/order_provider.dart';
 import '../providers/tab_provider.dart';
 import 'map_screen.dart';
-import 'screens/balance_screen.dart';
+import '../profile/screens/balance_screen.dart';
 import '../screens/order_history_screen.dart';
-import 'screens/login_screen.dart';
+import '../profile/screens/login_screen.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
