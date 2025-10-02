@@ -22,7 +22,7 @@ class _SearchScreenState extends State<SearchScreen> {
   void initState() {
     super.initState();
     _searchController.addListener(_onSearchChanged);
-    _loadTopTierRestaurants(); // Muat restoran top tier saat awal
+    _loadTopTierRestaurants();
   }
 
   @override
@@ -35,7 +35,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
   void _loadTopTierRestaurants() async {
     setState(() {
-      _isSearching = true; // Indikator loading
+      _isSearching = true;
     });
     final results = await _searchService.getTopTierRestaurants();
     setState(() {
@@ -99,7 +99,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 fillColor: Colors.grey[200],
                 contentPadding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 20.0),
               ),
-              onSubmitted: _performSearch, // Pencarian juga bisa dipicu saat enter
+              onSubmitted: _performSearch,
             ),
           ),
           Expanded(

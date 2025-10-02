@@ -238,7 +238,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-// ### APPBAR DENGAN LATAR BELAKANG BARU ###
 class _CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   const _CustomAppBar();
 

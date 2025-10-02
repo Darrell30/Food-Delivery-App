@@ -29,8 +29,8 @@ class Restaurant {
 
   factory Restaurant.fromJson(Map<String, dynamic> json) => _$RestaurantFromJson(json);
 
-  get deliveryTime => null;
+  get deliveryTime => 15;
 
-  get deliveryFee => null;
+  get deliveryFee => 0;
   Map<String, dynamic> toJson() => _$RestaurantToJson(this);
 }

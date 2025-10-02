@@ -31,7 +31,7 @@ class RestaurantCard extends StatelessWidget {
               height: 140,
               width: double.infinity,
               fit: BoxFit.cover,
-              // Safety net to prevent crashes from bad image URLs
+
               errorBuilder: (context, error, stackTrace) {
                 return Container(
                   height: 140,

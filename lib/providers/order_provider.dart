@@ -1,4 +1,3 @@
-// lib/providers/order_provider.dart
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart'; 
@@ -93,24 +92,20 @@ class OrderProvider with ChangeNotifier {
         _orderProcessingTime--;
         notifyListeners();
       } else {
-        // --- START PERBAIKAN DI SINI ---
+
         timer.cancel();
         
-        // 1. Perbarui status pesanan menjadi 'Siap Diambil'
-        // Gunakan variabel lokal untuk orderId karena _currentlyProcessingOrderId akan di-reset.
         final finishedOrderId = _currentlyProcessingOrderId; 
         if (finishedOrderId != null) {
           updateOrderStatus(finishedOrderId, 'Siap Diambil');
         }
 
-        // 2. Reset variabel timer
         _processingTimer = null;
         _orderProcessingTime = 0;
         _currentlyProcessingOrderId = null;
-        
-        // notifyListeners() dipanggil oleh updateOrderStatus, tetapi kita panggil lagi untuk memastikan state OrderProvider bersih.
+
         notifyListeners(); 
-        // --- END PERBAIKAN DI SINI ---
+
       }
     });
   }
@@ -134,4 +129,4 @@ class OrderProvider with ChangeNotifier {
     _processingTimer?.cancel();
     super.dispose();
   }
-}//
+}

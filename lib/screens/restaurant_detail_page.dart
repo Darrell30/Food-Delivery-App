@@ -48,29 +48,31 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
     );
 
     Provider.of<OrderProvider>(context, listen: false).addOrder(newOrder);
-    Provider.of<TabProvider>(context, listen: false).changeTab(2); // Pindah ke tab Orders
-    Navigator.of(context).popUntil((route) => route.isFirst); // Kembali ke Home/root
+    Provider.of<TabProvider>(context, listen: false).changeTab(2);
+    Navigator.of(context).popUntil((route) => route.isFirst);
   }
 
   @override
   Widget build(BuildContext context) {
     final bool isOrderReady = _selectedItems.isNotEmpty;
     return Scaffold(
-      appBar: AppBar(title: Text(widget.restaurant.name)),
-      body: CustomScrollView( // Menggunakan CustomScrollView agar bisa ada header gambar
+      body: CustomScrollView(
         slivers: [
           SliverAppBar(
-            expandedHeight: 200.0, // Tinggi gambar header restoran
-            floating: false,
+            expandedHeight: 200.0,
             pinned: true,
+            stretch: true,
+            backgroundColor: Colors.white,
+
             flexibleSpace: FlexibleSpaceBar(
               background: Image.network(
-                widget.restaurant.imageUrl, // <-- GAMBAR HEADER RESTORAN
+                widget.restaurant.imageUrl,
                 fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) =>
-                    Center(child: Text('Gagal memuat gambar restoran: ${widget.restaurant.name}')),
               ),
             ),
+          ),
+          SliverToBoxAdapter(
+            child: _buildRestaurantInfo(),
           ),
           SliverList(
             delegate: SliverChildBuilderDelegate(
@@ -84,12 +86,12 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
                     leading: ClipRRect(
                       borderRadius: BorderRadius.circular(8.0),
                       child: Image.network(
-                        item.imageUrl, // <-- GAMBAR UNTUK SETIAP ITEM MENU
+                        item.imageUrl,
                         width: 60,
                         height: 60,
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) =>
-                            const Icon(Icons.restaurant_menu, size: 40), // Fallback jika gambar error
+                            const Icon(Icons.restaurant_menu, size: 40),
                       ),
                     ),
                     title: Text(item.name, style: const TextStyle(fontWeight: FontWeight.bold)),
@@ -130,6 +132,42 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
               ),
             )
           : null,
+    );
+  }
+
+  Widget _buildRestaurantInfo() {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            widget.restaurant.name,
+            style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              const Icon(Icons.star, color: Colors.amber, size: 20),
+              const SizedBox(width: 8),
+              Text(
+                '${widget.restaurant.rating} • ${widget.restaurant.cuisineType}',
+                style: TextStyle(fontSize: 16, color: Colors.grey[700]),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Delivery Fee: Rp ${widget.restaurant.deliveryFee} • ${widget.restaurant.deliveryTime}',
+            style: TextStyle(fontSize: 16, color: Colors.grey[700]),
+          ),
+          const Divider(height: 32),
+          const Text(
+            'Menu',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+        ],
+      ),
     );
   }
 }

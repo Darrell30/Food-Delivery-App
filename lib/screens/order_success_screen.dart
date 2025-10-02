@@ -39,20 +39,16 @@ class OrderSuccessScreen extends StatelessWidget {
               ),
               const SizedBox(height: 48),
 
-              // Tombol Lihat Riwayat Pesanan
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton(
                   onPressed: () {
-                    // 1. Ubah tab navigasi bawah (BottomNavigationBar) ke tab Orders/Riwayat Pesanan (Index 2)
-                    // BottomNavigationBar Index: [0: Home, 1: Pickup, 2: Orders, 3: Search, 4: Profile]
+
                     Provider.of<TabProvider>(context, listen: false).changeTab(2);
                     
-                    
-                    // 2. Navigasi kembali ke MainPage (yang merupakan akar/root) dan hapus semua rute di atasnya
                     Navigator.of(context).pushAndRemoveUntil(
                       MaterialPageRoute(builder: (context) => const MainPage()),
-                      (route) => false, // Hapus semua rute lama
+                      (route) => false,
                     );
                   },
                   style: OutlinedButton.styleFrom(

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-//
+
 enum OrderStatus { all, pending, onDelivery, completed }
 
 class Order {
@@ -38,7 +38,6 @@ class Order {
   }
 }
 
-// Data awal untuk pengujian
 final List<Order> initialOrdersList = [
   Order(
     id: 'ORD001',

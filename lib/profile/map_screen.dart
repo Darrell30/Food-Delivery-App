@@ -6,7 +6,6 @@ import 'package:geocoding/geocoding.dart';
 import 'package:http/http.dart' as http;
 import 'package:uuid/uuid.dart';
 
-// IMPORTANT: Add your Google Maps API Key here
 const String googleApiKey = "AIzaSyCVNllzvx7sVo7O6DHJxElh_vhAPDwcifQ";
 
 class MapScreen extends StatefulWidget {
@@ -21,7 +20,6 @@ class _MapScreenState extends State<MapScreen> {
   LatLng? _pickedLocation;
   bool _isLoading = true;
 
-  // --- Variables for search functionality ---
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
   List<dynamic> _suggestions = [];
@@ -31,7 +29,7 @@ class _MapScreenState extends State<MapScreen> {
   @override
   void initState() {
     super.initState();
-    _sessionToken = _uuid.v4(); // Generate a session token on init
+    _sessionToken = _uuid.v4();
     _searchController.addListener(() {
       if (_searchController.text.isNotEmpty) {
         _getAutocompleteSuggestions(_searchController.text);
@@ -90,15 +88,13 @@ class _MapScreenState extends State<MapScreen> {
             _searchController.clear();
             _searchFocusNode.unfocus();
           });
-          _sessionToken = null; // A new session starts after a place is selected
+          _sessionToken = null;
         }
       }
     } catch (e) {
       debugPrint("Error fetching place details: $e");
     }
   }
-
-  // --- Map and Location Logic ---
 
   Future<void> _getCurrentLocation() async {
     try {
@@ -183,7 +179,7 @@ class _MapScreenState extends State<MapScreen> {
         children: [
           GoogleMap(
             initialCameraPosition: const CameraPosition(
-              target: LatLng(-6.2088, 106.8456), // Jakarta
+              target: LatLng(-6.2088, 106.8456),
               zoom: 14.0,
             ),
             onMapCreated: (controller) {

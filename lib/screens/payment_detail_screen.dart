@@ -58,18 +58,16 @@ class _PaymentDetailScreenState extends State<PaymentDetailScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Section GoPay Coins
+
             _buildPaymentOptionTile(paymentOptions[0]),
             const SizedBox(height: 24),
             
-            // Section Metode Pembayaran Utama
             const Text('Metode pembayaran', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             Text('Swipe kiri buat pilih metode utamamu', style: TextStyle(color: Colors.grey[600], fontSize: 12)),
             
             ...paymentOptions.sublist(1).map(_buildPaymentOptionTile),
             const SizedBox(height: 24),
             
-            // Section Tambah Metode (Dummy)
             const Text('Tambah metode', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             _buildAddMethodTile(title: 'GoPay Tabungan by Jago', desc: 'Aktivasi & dapetin bunga 2.5% sekaligus transaksi', icon: Icons.savings),
             _buildAddMethodTile(title: 'GoPay Later', desc: 'Dapatkan maks. diskon 50rb & limit s.d. 30jt. Aktifkan sekarang!', icon: Icons.schedule),

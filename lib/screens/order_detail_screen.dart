@@ -33,16 +33,15 @@ class OrderDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // START CONSUMER WRAPPER
+
     return Consumer<OrderProvider>(
       builder: (context, orderProvider, child) {
-        // AMBIL STATUS ORDER TERBARU DARI PROVIDER
+
         final currentOrder = orderProvider.orderHistory.firstWhere(
           (o) => o.orderId == order.orderId,
           orElse: () => order, 
         );
         
-        // GUNAKAN currentOrder, BUKAN order ASLI
         final subtotal = currentOrder.totalPrice - deliveryFee - adminFee;
         final isPendingPayment = currentOrder.status == 'pending' || currentOrder.status == 'Menunggu Konfirmasi';
         final isOnDelivery = currentOrder.status == 'on_delivery'; 
@@ -78,7 +77,7 @@ class OrderDetailScreen extends StatelessWidget {
             child: const Text('Konfirmasi Pengantaran (Selesai)'),
           );
         } 
-        // LOGIKA TOMBOL BIRU "AMBIL PESANAN"
+
         else if (isReadyToPickUp) {
           bottomButton = ElevatedButton(
             onPressed: () => _completeOrder(context),
@@ -114,7 +113,6 @@ class OrderDetailScreen extends StatelessWidget {
         );
       },
     );
-    // END CONSUMER WRAPPER
   }
 
   Widget _buildStatusSection(String status) {

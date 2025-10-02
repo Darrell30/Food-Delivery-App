@@ -95,7 +95,7 @@ class _OrderScreenState extends State<OrderScreen> {
   Widget build(BuildContext context) {
     final orderProvider = Provider.of<OrderProvider>(context);
     
-    final bool isCurrentlyProcessing = 
+    final bool isThisOrderProcessing = 
         _currentOrder != null && 
         orderProvider.isProcessing && 
         orderProvider.currentlyProcessingOrderId == _currentOrder!.id;
@@ -103,24 +103,9 @@ class _OrderScreenState extends State<OrderScreen> {
     final bool isTimerFinished = 
         _currentOrder != null && 
         !orderProvider.isProcessing && 
-        orderProvider.secondsRemaining == 0 &&
-        orderProvider.currentlyProcessingOrderId == _currentOrder!.id;
+        orderProvider.currentlyProcessingOrderId == null;
         
-    final bool isOrderPending = _currentOrder == null; // Kondisi baru: Hanya pending jika _currentOrder null
-
-    if (isTimerFinished) {
-        Future.microtask(() {
-            if (_currentOrder != null) {
-              orderProvider.updateOrderStatus(_currentOrder!.id, 'Siap Diambil');
-              orderProvider.stopOrderProcessing(); 
-              
-              // HAPUS STATE LOKAL SETELAH PROSES SELESAI
-              setState(() {
-                _currentOrder = null; 
-              });
-            }
-        });
-    }
+    final bool isOrderPending = _currentOrder == null || (_currentOrder != null && !isThisOrderProcessing && !isTimerFinished);
 
     return Scaffold(
       appBar: AppBar(
@@ -155,7 +140,7 @@ class _OrderScreenState extends State<OrderScreen> {
               ),
             ],
 
-            if (isCurrentlyProcessing) ...[
+            if (isThisOrderProcessing) ...[
               const CircularProgressIndicator(),
               const SizedBox(height: 30),
               Text(
@@ -193,11 +178,19 @@ class _OrderScreenState extends State<OrderScreen> {
               ElevatedButton(
                 onPressed: () {
                   final tabProvider = Provider.of<TabProvider>(context, listen: false);
+
+                  setState(() {
+                    _currentOrder = null;
+                  });
                   
                   Navigator.pop(context);
 
                   Future.microtask(() {
                     tabProvider.changeTab(2); 
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Pesanan selesai, membuka Riwayat Pesanan.')),
+                    );
                   });
                 },
                 style: ElevatedButton.styleFrom(
@@ -205,7 +198,7 @@ class _OrderScreenState extends State<OrderScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 ),
-                child: const Text('Lihat Detail Pesanan', style: TextStyle(color: Colors.white, fontSize: 18)),
+                child: const Text('Kembali ke Riwayat Pesanan', style: TextStyle(color: Colors.white, fontSize: 18)),
               ),
             ],
           ],
@@ -213,4 +206,4 @@ class _OrderScreenState extends State<OrderScreen> {
       ),
     );
   }
-}//
+}
