@@ -1,8 +1,13 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+import 'package:uuid/uuid.dart';
+
+// IMPORTANT: Add your Google Maps API Key here
+const String googleApiKey = "AIzaSyCVNllzvx7sVo7O6DHJxElh_vhAPDwcifQ";
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -12,32 +17,100 @@ class MapScreen extends StatefulWidget {
 }
 
 class _MapScreenState extends State<MapScreen> {
-  static const _initialCameraPosition = CameraPosition(
-    target: LatLng(-6.2088, 106.8456),
-    zoom: 14.0,
-  );
-
   late GoogleMapController _mapController;
   LatLng? _pickedLocation;
   bool _isLoading = true;
 
+  // --- Variables for search functionality ---
+  final TextEditingController _searchController = TextEditingController();
+  final FocusNode _searchFocusNode = FocusNode();
+  List<dynamic> _suggestions = [];
+  String? _sessionToken;
+  final Uuid _uuid = const Uuid();
+
   @override
   void initState() {
     super.initState();
+    _sessionToken = _uuid.v4(); // Generate a session token on init
+    _searchController.addListener(() {
+      if (_searchController.text.isNotEmpty) {
+        _getAutocompleteSuggestions(_searchController.text);
+      } else {
+        if (mounted) setState(() => _suggestions = []);
+      }
+    });
   }
 
-  Future<void> _getCurrentLocation() async {
-    if (!mounted) return;
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _searchFocusNode.dispose();
+    super.dispose();
+  }
 
+  // --- Search Logic ---
+
+  Future<void> _getAutocompleteSuggestions(String input) async {
+    if (_sessionToken == null) _sessionToken = _uuid.v4();
+    String url =
+        'https://maps.googleapis.com/maps/api/place/autocomplete/json?input=$input&key=$googleApiKey&sessiontoken=$_sessionToken';
+
+    try {
+      final response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['status'] == 'OK' && mounted) {
+          setState(() => _suggestions = data['predictions']);
+        }
+      }
+    } catch (e) {
+      debugPrint("Error fetching suggestions: $e");
+    }
+  }
+
+  Future<void> _getPlaceDetails(String placeId) async {
+    String url =
+        'https://maps.googleapis.com/maps/api/place/details/json?place_id=$placeId&key=$googleApiKey&sessiontoken=$_sessionToken';
+
+    try {
+      final response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['status'] == 'OK' && mounted) {
+          final location = data['result']['geometry']['location'];
+          final lat = location['lat'];
+          final lng = location['lng'];
+
+          _mapController.animateCamera(
+            CameraUpdate.newLatLngZoom(LatLng(lat, lng), 16.0),
+          );
+
+          setState(() {
+            _suggestions = [];
+            _searchController.clear();
+            _searchFocusNode.unfocus();
+          });
+          _sessionToken = null; // A new session starts after a place is selected
+        }
+      }
+    } catch (e) {
+      debugPrint("Error fetching place details: $e");
+    }
+  }
+
+  // --- Map and Location Logic ---
+
+  Future<void> _getCurrentLocation() async {
     try {
       LocationPermission permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied ||
           permission == LocationPermission.deniedForever) {
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Location permissions are denied.')),
-        );
-        if (mounted) setState(() => _isLoading = false);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Location permissions are denied.')),
+          );
+          setState(() => _isLoading = false);
+        }
         return;
       }
 
@@ -45,18 +118,17 @@ class _MapScreenState extends State<MapScreen> {
         desiredAccuracy: LocationAccuracy.high,
       );
 
-      if (!mounted) return;
-      setState(() {
-        _pickedLocation = LatLng(position.latitude, position.longitude);
-        _isLoading = false;
-      });
-
-      _mapController.animateCamera(
-        CameraUpdate.newLatLngZoom(_pickedLocation!, 16.0),
-      );
+      if (mounted) {
+        setState(() {
+          _pickedLocation = LatLng(position.latitude, position.longitude);
+          _isLoading = false;
+        });
+        _mapController.animateCamera(
+          CameraUpdate.newLatLngZoom(_pickedLocation!, 16.0),
+        );
+      }
     } catch (e) {
-      if (!mounted) return;
-      setState(() => _isLoading = false);
+      if (mounted) setState(() => _isLoading = false);
       debugPrint("Error getting location: $e");
     }
   }
@@ -67,8 +139,24 @@ class _MapScreenState extends State<MapScreen> {
           await placemarkFromCoordinates(latLng.latitude, latLng.longitude);
 
       if (placemarks.isNotEmpty) {
-        Placemark place = placemarks[0];
-        return "${place.street}, ${place.subLocality}, ${place.locality}, ${place.postalCode}";
+        final Placemark place = placemarks[0];
+        final addressParts = <String>[];
+
+        final plusCodeRegex = RegExp(r'^[A-Z0-9]{4}\+[A-Z0-9]{2,3}$');
+        if (place.street != null && !plusCodeRegex.hasMatch(place.street!)) {
+          addressParts.add(place.street!);
+        }
+        if (place.subLocality != null && place.subLocality!.isNotEmpty) {
+          addressParts.add(place.subLocality!);
+        }
+        if (place.locality != null && place.locality!.isNotEmpty) {
+          addressParts.add(place.locality!);
+        }
+        if (place.postalCode != null && place.postalCode!.isNotEmpty) {
+          addressParts.add(place.postalCode!);
+        }
+
+        return addressParts.join(', ');
       } else {
         return "No address found for this location.";
       }
@@ -76,12 +164,6 @@ class _MapScreenState extends State<MapScreen> {
       debugPrint("Error getting address: $e");
       return "Could not get address";
     }
-  }
-
-  //simpen alamat
-  Future<void> _saveAddress(String address) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('user_address', address);
   }
 
   @override
@@ -100,33 +182,33 @@ class _MapScreenState extends State<MapScreen> {
         alignment: Alignment.center,
         children: [
           GoogleMap(
-            initialCameraPosition: _initialCameraPosition,
+            initialCameraPosition: const CameraPosition(
+              target: LatLng(-6.2088, 106.8456), // Jakarta
+              zoom: 14.0,
+            ),
             onMapCreated: (controller) {
               _mapController = controller;
               _getCurrentLocation();
             },
             onCameraMove: (position) {
-              if (!mounted) return;
-              setState(() {
-                _pickedLocation = position.target;
-              });
+              if (_searchFocusNode.hasFocus) return;
+              if (mounted) {
+                setState(() => _pickedLocation = position.target);
+              }
             },
           ),
           if (_isLoading)
             const CircularProgressIndicator()
           else
-            const Icon(Icons.location_pin, color: Colors.red, size: 50),
+            if (_suggestions.isEmpty)
+              const Icon(Icons.location_pin, color: Colors.red, size: 50),
           Positioned(
             bottom: 30,
             child: ElevatedButton(
               onPressed: _pickedLocation == null
                   ? null
                   : () async {
-                      final address =
-                          await _getAddressFromLatLng(_pickedLocation!);
-
-                      await _saveAddress(address);
-
+                      final address = await _getAddressFromLatLng(_pickedLocation!);
                       if (mounted) {
                         Navigator.of(context).pop(address);
                       }
@@ -140,6 +222,61 @@ class _MapScreenState extends State<MapScreen> {
                 'Confirm Location',
                 style: TextStyle(fontSize: 16, color: Colors.white),
               ),
+            ),
+          ),
+          Positioned(
+            top: 10,
+            left: 15,
+            right: 15,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Material(
+                  elevation: 4.0,
+                  borderRadius: BorderRadius.circular(30.0),
+                  child: TextField(
+                    controller: _searchController,
+                    focusNode: _searchFocusNode,
+                    decoration: InputDecoration(
+                      hintText: 'Search for a location...',
+                      prefixIcon: const Icon(Icons.search),
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+                      suffixIcon: _searchController.text.isNotEmpty
+                          ? IconButton(
+                              icon: const Icon(Icons.clear),
+                              onPressed: () {
+                                setState(() {
+                                  _searchController.clear();
+                                  _suggestions = [];
+                                });
+                              },
+                            )
+                          : null,
+                    ),
+                  ),
+                ),
+                if (_suggestions.isNotEmpty)
+                  Material(
+                    elevation: 4.0,
+                    borderRadius: BorderRadius.circular(10.0),
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.3),
+                      child: ListView.builder(
+                        padding: EdgeInsets.zero,
+                        shrinkWrap: true,
+                        itemCount: _suggestions.length,
+                        itemBuilder: (context, index) {
+                          final suggestion = _suggestions[index];
+                          return ListTile(
+                            title: Text(suggestion['description']),
+                            onTap: () => _getPlaceDetails(suggestion['place_id']),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+              ],
             ),
           ),
         ],
