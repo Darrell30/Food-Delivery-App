@@ -22,6 +22,7 @@ class OrderHistoryCard extends StatelessWidget {
       case 'Diproses':
       case 'Siap Diambil':
       case 'Menunggu Konfirmasi':
+      case 'on_delivery': // TAMBAHKAN on_delivery
         return Colors.orange.shade100;
       default:
         return Colors.grey.shade300;
@@ -38,6 +39,7 @@ class OrderHistoryCard extends StatelessWidget {
       case 'Diproses':
       case 'Siap Diambil':
       case 'Menunggu Konfirmasi':
+      case 'on_delivery': // TAMBAHKAN on_delivery
         return Colors.orange.shade800;
       default:
         return Colors.black;
@@ -85,11 +87,13 @@ class OrderHistoryCard extends StatelessWidget {
     final totalItems = order.items.fold(0, (sum, item) => sum + item.quantity);
     final formattedDate = DateFormat('d MMMM yyyy, HH:mm').format(order.orderDate);
     
+    // UBAH KONDISI PEMBATALAN: Hanya boleh dibatalkan jika statusnya
+    // 'pending' atau 'Menunggu Konfirmasi' (sebelum benar-benar diproses atau dikirim).
     final bool canBeCancelled = 
         order.status == 'pending' || 
-        order.status == 'Diproses' ||
-        order.status == 'Menunggu Konfirmasi' ||
-        order.status == 'Siap Diambil';
+        order.status == 'Menunggu Konfirmasi';
+        
+    // HAPUS status 'Diproses', 'Siap Diambil', dan 'on_delivery' dari daftar yang dapat dibatalkan.
 
 
     return Card(

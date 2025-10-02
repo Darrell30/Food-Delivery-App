@@ -3,11 +3,13 @@ import 'package:provider/provider.dart';
 import 'package:food_delivery_app/providers/order_provider.dart';
 import 'package:food_delivery_app/models/order_model.dart';
 import 'package:food_delivery_app/widgets/order_history_card.dart';
+import 'package:food_delivery_app/providers/tab_provider.dart'; // Import TabProvider
 
 // Menerima initialTabIndex
 class OrdersPage extends StatefulWidget {
+  // Pertahankan ini, tetapi kita akan mengutamakan nilai dari Provider
   final int initialTabIndex; 
-  const OrdersPage({super.key, this.initialTabIndex = 0}); // Default ke index 0: Pending Payment
+  const OrdersPage({super.key, this.initialTabIndex = 0}); // Default ke index 1: All
 
   @override
   State<OrdersPage> createState() => _OrdersPageState();
@@ -19,10 +21,18 @@ class _OrdersPageState extends State<OrdersPage> with SingleTickerProviderStateM
   @override
   void initState() {
     super.initState();
+    
+    // Ambil nilai awal dari Provider untuk TabController
+    final tabProvider = Provider.of<TabProvider>(context, listen: false);
+    
+    // Gunakan nilai dari Provider, jika sudah diatur. Jika tidak, gunakan default.
+    // Jika OrdersPage dibuka dari MainPage, index akan diupdate melalui Provider/initState.
+    final initialIndex = tabProvider.ordersInitialTabIndex;
+
     // Inisialisasi TabController dengan panjang 5 dan memilih tab awal
     _tabController = TabController(
       length: 5,
-      initialIndex: widget.initialTabIndex, 
+      initialIndex: initialIndex, 
       vsync: this,
     );
   }
@@ -61,7 +71,12 @@ class _OrdersPageState extends State<OrdersPage> with SingleTickerProviderStateM
 
     // Filter order berdasarkan status
     final pendingOrders = allOrders.where((order) => order.status == 'pending' || order.status == 'Menunggu Konfirmasi').toList();
-    final onDeliveryOrders = allOrders.where((order) => order.status == 'on_delivery' || order.status == 'Diproses' || order.status == 'Siap Diambil').toList();
+    // Diperluas untuk mencakup 'on_delivery' yang baru dan status proses lainnya
+    final onDeliveryOrders = allOrders.where((order) => 
+        order.status == 'on_delivery' || 
+        order.status == 'Diproses' || 
+        order.status == 'Siap Diambil'
+    ).toList();
     final completedOrders = allOrders.where((order) => order.status == 'Selesai').toList();
     final cancelledOrders = allOrders.where((order) => order.status == 'Dibatalkan').toList();
 

@@ -28,12 +28,15 @@ class _PaymentDetailScreenState extends State<PaymentDetailScreen> {
     // Simulasi proses pembayaran
     Future.delayed(const Duration(seconds: 1), () {
       
-      // 1. Update status pesanan ke 'Selesai' (Completed) agar pindah ke tab Completed
+      // 1. Update status pesanan ke 'on_delivery' (On Delivery)
       final orderProvider = Provider.of<OrderProvider>(context, listen: false);
-      // NOTE: Changing status from 'Diproses' to 'Selesai' to fulfill the request of moving it to the 'Completed' tab.
-      orderProvider.updateOrderStatus(widget.order.orderId, 'Selesai');
+      orderProvider.updateOrderStatus(widget.order.orderId, 'on_delivery');
       
-      // 2. Pindah ke OrderSuccessScreen 
+      // 2. Pindahkan ke tab On Delivery (index 2) pada OrdersPage
+      // OrdersPage tabs: [0: Pending Payment, 1: All, 2: On Delivery, 3: Completed, 4: Cancelled]
+      Provider.of<TabProvider>(context, listen: false).changeTab(2); // UBAH KE INDEX 2
+
+      // 3. Pindah ke OrderSuccessScreen 
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(
           builder: (context) => OrderSuccessScreen(order: widget.order),
@@ -41,10 +44,6 @@ class _PaymentDetailScreenState extends State<PaymentDetailScreen> {
         (route) => false, 
       );
       
-      // 3. Pindahkan ke tab Completed (index 3) pada OrdersPage
-      // OrdersPage tabs: [0: Pending Payment, 1: All, 2: On Delivery, 3: Completed, 4: Cancelled]
-      Provider.of<TabProvider>(context, listen: false).changeTab(3);
-
     });
   }
 
