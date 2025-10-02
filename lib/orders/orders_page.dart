@@ -78,10 +78,15 @@ class _OrdersPageState extends State<OrdersPage> with SingleTickerProviderStateM
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Orders'),
+        title: const Text("My Orders", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        backgroundColor: const Color.fromARGB(255, 0, 119, 255).withOpacity(0.8),
+        foregroundColor: Colors.white,
         bottom: TabBar(
           controller: _tabController,
           isScrollable: true,
+          labelColor: Colors.white,           
+          unselectedLabelColor: Colors.white70, 
+          indicatorColor: Colors.white,
           tabs: const [
             Tab(text: 'Pending Payment'),
             Tab(text: 'All'),

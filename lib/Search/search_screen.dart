@@ -71,6 +71,8 @@ class _SearchScreenState extends State<SearchScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('What do you want to eat?'),
+        backgroundColor: const Color.fromARGB(255, 0, 119, 255).withOpacity(0.8),
+        foregroundColor: Colors.white,
         elevation: 0,
       ),
       body: Column(
