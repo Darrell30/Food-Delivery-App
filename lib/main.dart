@@ -33,8 +33,8 @@ class FoodDeliveryApp extends StatelessWidget {
       title: "Food Delivery",
       theme: ThemeData(
         fontFamily: 'Poppins',
-        primaryColor: const Color.fromRGBO(39, 0, 197, 1),
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromRGBO(39, 0, 197, 1)),
+        primaryColor: const Color.fromARGB(255, 0, 119, 255),
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 0, 119, 255)),
       ),
       home: const AuthCheckScreen(),
     );
@@ -63,7 +63,7 @@ class MainPage extends StatelessWidget {
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: tabProvider.currentIndex,
-        selectedItemColor: const Color.fromRGBO(39, 0, 197, 1),
+        selectedItemColor: const Color.fromARGB(255, 0, 119, 255),
         unselectedItemColor: Colors.grey,
         type: BottomNavigationBarType.fixed,
         onTap: (index) {

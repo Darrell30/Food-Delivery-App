@@ -214,7 +214,7 @@ class _MapScreenState extends State<MapScreen> {
                       }
                     },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color.fromRGBO(39, 0, 197, 1),
+                backgroundColor: const Color.fromARGB(255, 0, 119, 255),
                 padding:
                     const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
               ),

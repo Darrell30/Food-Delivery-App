@@ -77,7 +77,7 @@ class _BalanceScreenState extends State<BalanceScreen> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
           gradient: LinearGradient(
-            colors: [Colors.blue.shade700, Colors.blue.shade900],
+            colors: [Color.fromARGB(255, 0, 119, 255), Color.fromARGB(255, 114, 180, 255)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),

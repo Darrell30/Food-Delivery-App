@@ -20,7 +20,7 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   late final TextEditingController _nameController;
   bool _isEditing = false;
-  static const Color accentColor = Color.fromRGBO(39, 0, 197, 1);
+  static const Color accentColor = Color.fromARGB(255, 0, 119, 255);
   final ImagePicker _picker = ImagePicker();
 
   @override
@@ -151,11 +151,12 @@ class _ProfilePageState extends State<ProfilePage> {
       appBar: AppBar(
         title: Text(
           _isEditing ? 'Hi, ${_nameController.text}!' : 'Hi, ${userData.userName}!',
-          style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: const Color.fromARGB(255, 0, 119, 255) .withOpacity(0.8),
         elevation: 0,
         centerTitle: true,
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),

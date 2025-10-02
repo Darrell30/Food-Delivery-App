@@ -42,7 +42,7 @@ class _PickUpScreenState extends State<PickUpScreen> {
 
     final customMarkerIcon = await _getBitmapDescriptorFromIconData(
       Icons.food_bank,
-      const Color.fromRGBO(39, 0, 197, 1),
+      const Color.fromARGB(255, 0, 119, 255),
       120.0, 
     );
 
@@ -129,7 +129,8 @@ class _PickUpScreenState extends State<PickUpScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Nearby Restaurants"),
+        backgroundColor: const Color.fromARGB(255, 0, 119, 255) .withOpacity(0.8), 
+        title: const Text("Nearby Restaurants", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
       ),
 
       body: FutureBuilder<MapData>(

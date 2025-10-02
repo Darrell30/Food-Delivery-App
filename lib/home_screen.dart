@@ -254,7 +254,7 @@ class _CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     }
 
     return Container(
-      color: const Color.fromARGB(255, 143, 175, 255) .withOpacity(0.8), 
+      color: const Color.fromARGB(255, 0, 119, 255) .withOpacity(0.8), 
       child: SafeArea(
         child: AppBar(
           elevation: 0,
@@ -326,7 +326,7 @@ class _CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                       child: Row(
                         children: const [
                           Icon(Icons.account_balance_wallet,
-                              color: Colors.blue),
+                              color: Color.fromARGB(255, 0, 119, 255)),
                           SizedBox(width: 10),
                           Text("My Balance"),
                         ],
@@ -368,9 +368,9 @@ class _BalanceCard extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: Row(children: [
               const CircleAvatar(
-                  backgroundColor: Color(0xFFE0F7FA),
+                  backgroundColor: Color.fromARGB(255, 218, 229, 255),
                   child: Icon(Icons.account_balance_wallet,
-                      color: Color(0xFF00838F))),
+                      color: Color.fromARGB(255, 0, 119, 255), size: 22)),
               const SizedBox(width: 12),
               Text(context.watch<UserData>().formattedBalance,
                   style: const TextStyle(
@@ -402,8 +402,8 @@ class _ActionItem extends StatelessWidget {
             child: Column(mainAxisSize: MainAxisSize.min, children: [
               CircleAvatar(
                   radius: 20,
-                  backgroundColor: const Color(0xFFE0F7FA),
-                  child: Icon(icon, color: const Color(0xFF00838F), size: 22)),
+                  backgroundColor: const Color.fromARGB(255, 218, 229, 255),
+                  child: Icon(icon, color: const Color.fromARGB(255, 0, 119, 255), size: 22)),
               const SizedBox(height: 5),
               Text(label, style: const TextStyle(fontSize: 12))
             ])));
@@ -431,7 +431,7 @@ class SectionTitle extends StatelessWidget {
           onTap: onSeeAllTap,
           child: const Text(
             "See All",
-            style: TextStyle(color: Color.fromRGBO(39, 0, 197, 1)),
+            style: TextStyle(color: Color.fromARGB(255, 0, 119, 255)),
           ),
         ),
       ],
