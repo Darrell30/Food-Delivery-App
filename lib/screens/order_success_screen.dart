@@ -1,9 +1,7 @@
-// lib/screens/order_success_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/tab_provider.dart';
-import '../main.dart'; // Pastikan path ke MainPage Anda benar
+import '../main.dart'; 
 
 class OrderSuccessScreen extends StatelessWidget {
   final String orderId;
@@ -23,16 +21,14 @@ class OrderSuccessScreen extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // --- Bagian yang diubah: Ganti Icon dengan Image.asset (GIF) ---
               Image.asset(
-                'assets/gifs/Success_payment.gif', // Path ke GIF Anda
-                width: 150, // Sesuaikan ukuran sesuai kebutuhan
-                height: 150, // Sesuaikan ukuran sesuai kebutuhan
+                'assets/gifs/Success_payment.gif', 
+                width: 150, 
+                height: 150, 
                 fit: BoxFit.contain,
                 errorBuilder: (context, error, stackTrace) => 
-                    const Icon(Icons.error, color: Colors.red, size: 80), // Fallback jika GIF gagal dimuat
+                    const Icon(Icons.error, color: Colors.red, size: 80), 
               ),
-              // --- Akhir Bagian yang diubah ---
               
               const SizedBox(height: 30),
               const Text(
@@ -56,25 +52,19 @@ class OrderSuccessScreen extends StatelessWidget {
               const SizedBox(height: 50),
               ElevatedButton(
                 onPressed: () {
-                  // Dapatkan instance TabProvider
                   final tabProvider = Provider.of<TabProvider>(context, listen: false);
 
-                  // Set tab Orders (index 2) sebagai tab utama
                   tabProvider.changeTab(2); 
+                 
+                  tabProvider.setOrdersInitialTab(2); 
 
-                  // Opsional: Set OrdersPage untuk langsung membuka tab "On Delivery" atau "All"
-                  // Sesuaikan ini dengan logika Anda setelah pembayaran berhasil.
-                  // Misalnya, jika pesanan langsung diproses, mungkin Anda ingin melihat tab 'On Delivery' (index 2 di OrdersPage)
-                  tabProvider.setOrdersInitialTab(2); // Atau 1 untuk 'All' jika ingin melihat semua pesanan
-
-                  // Navigasi ke halaman utama dan hapus semua rute sebelumnya
                   Navigator.of(context).pushAndRemoveUntil(
                     MaterialPageRoute(builder: (context) => const MainPage()),
                     (Route<dynamic> route) => false,
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).primaryColor, // Gunakan warna tema utama Anda
+                  backgroundColor: Theme.of(context).primaryColor, 
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                   shape: RoundedRectangleBorder(

@@ -25,18 +25,13 @@ class _PaymentDetailScreenState extends State<PaymentDetailScreen> {
   void _processPayment() {
     if (_selectedPaymentMethod == null) return;
     
-    // Simulasi proses pembayaran
     Future.delayed(const Duration(seconds: 1), () {
       
-      // 1. Update status pesanan ke 'on_delivery' (On Delivery)
       final orderProvider = Provider.of<OrderProvider>(context, listen: false);
       orderProvider.updateOrderStatus(widget.order.orderId, 'on_delivery');
       
-      // 2. Pindahkan ke tab On Delivery (index 2) pada OrdersPage
-      // OrdersPage tabs: [0: Pending Payment, 1: All, 2: On Delivery, 3: Completed, 4: Cancelled]
-      Provider.of<TabProvider>(context, listen: false).changeTab(2); // UBAH KE INDEX 2
+      Provider.of<TabProvider>(context, listen: false).changeTab(2); 
 
-      // 3. Pindah ke OrderSuccessScreen 
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(
           builder: (context) => OrderSuccessScreen(orderId: widget.order.orderId),

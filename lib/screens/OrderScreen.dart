@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-// REMOVED: import '../orders/order_models.dart'; // This is the conflicting file
 import 'package:food_delivery_app/models/search_model.dart';
 import 'package:food_delivery_app/models/menu_item.dart';
 import '../providers/order_provider.dart';
@@ -10,12 +9,10 @@ import '../providers/tab_provider.dart';
 
 class OrderScreen extends StatefulWidget {
   final String placeName;
-  // REMOVED: final Order? initialOrder;
 
   const OrderScreen({
     super.key,
     required this.placeName,
-    // REMOVED: this.initialOrder,
   });
 
   @override
@@ -24,7 +21,6 @@ class OrderScreen extends StatefulWidget {
 
 class _OrderScreenState extends State<OrderScreen> {
 
-  // Change type to use the correct model
   OrderModel? _currentOrder; 
   late double _pendingPrice;
 
@@ -35,14 +31,13 @@ class _OrderScreenState extends State<OrderScreen> {
     
     final orderProvider = Provider.of<OrderProvider>(context, listen: false);
     
-    // Attempt to find the currently processing order in the provider's history
     if (orderProvider.currentlyProcessingOrderId != null) {
       try {
         _currentOrder = orderProvider.orderHistory.firstWhere(
           (order) => order.orderId == orderProvider.currentlyProcessingOrderId,
         );
       } catch (_) {
-        _currentOrder = null; // Order not found, start fresh
+        _currentOrder = null; 
       }
     }
   }
@@ -79,12 +74,9 @@ class _OrderScreenState extends State<OrderScreen> {
       status: 'Menunggu Konfirmasi', 
     );
 
-    // 1. Add order
     Provider.of<OrderProvider>(context, listen: false).addOrder(newOrderModel);
-    // 2. Start processing
     Provider.of<OrderProvider>(context, listen: false).startOrderProcessing(uniqueId);
 
-    // 3. Update local state with the new order model
     setState(() {
       _currentOrder = newOrderModel;
     });
@@ -94,13 +86,11 @@ class _OrderScreenState extends State<OrderScreen> {
   Widget build(BuildContext context) {
     final orderProvider = Provider.of<OrderProvider>(context);
     
-    // Check if the current order (if it exists) is the one being processed
     final bool isThisOrderProcessing = 
         _currentOrder != null && 
         orderProvider.isProcessing && 
         orderProvider.currentlyProcessingOrderId == _currentOrder!.orderId;
         
-    // Check if the timer is finished and the final status is set
     final bool isTimerFinished = 
         _currentOrder != null && 
         !orderProvider.isProcessing && 
@@ -109,7 +99,6 @@ class _OrderScreenState extends State<OrderScreen> {
             o.orderId == _currentOrder!.orderId && o.status == 'Siap Diambil'
         );
         
-    // Order is pending if no order is tracked, OR if the tracked order is not being processed and not finished.
     final bool isOrderPending = _currentOrder == null || (_currentOrder != null && !isThisOrderProcessing && !isTimerFinished);
 
     return Scaffold(
@@ -184,15 +173,12 @@ class _OrderScreenState extends State<OrderScreen> {
                 onPressed: () {
                   final tabProvider = Provider.of<TabProvider>(context, listen: false);
 
-                  // Reset local state
                   setState(() {
                     _currentOrder = null;
                   });
                   
-                  // Navigate back to the previous screen (e.g., PickUpScreen or main tab)
                   Navigator.pop(context);
 
-                  // Navigate to the Orders page (tab index 2)
                   Future.microtask(() {
                     tabProvider.changeTab(2); 
 

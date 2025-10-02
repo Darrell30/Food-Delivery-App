@@ -12,11 +12,9 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  // --- Fixed Credentials ---
   static const String _correctEmail = "admin@gmail.com";
   static const String _correctPassword = "1234";
 
-  // --- State Variables ---
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -33,16 +31,12 @@ class _LoginScreenState extends State<LoginScreen> {
       final password = _passwordController.text.trim();
 
       if (email == _correctEmail && password == _correctPassword) {
-        // ✅ --- ADD THIS LOGIC --- ✅
-        // 1. Set the logged in flag to true
         final prefs = await SharedPreferences.getInstance();
         await prefs.setBool('isLoggedIn', true);
 
-        // 2. Load the user's data
         if (mounted) {
           await Provider.of<UserData>(context, listen: false).loadFixedUserData();
         }
-        // --- END ADD ---
 
         if (mounted) {
           Navigator.of(context).pushReplacement(
@@ -50,7 +44,7 @@ class _LoginScreenState extends State<LoginScreen> {
           );
         }
       } else {
-        // ... error handling
+        
       }
 
       if (mounted) {
@@ -91,7 +85,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Image.asset(
-                    'assets/icons/icon.png', // Make sure this path is correct
+                    'assets/icons/icon.png', 
                     height: 120,
                   ),
                   const SizedBox(height: 20),

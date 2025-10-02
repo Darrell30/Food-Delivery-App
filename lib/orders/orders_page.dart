@@ -66,7 +66,7 @@ class _OrdersPageState extends State<OrdersPage> with SingleTickerProviderStateM
     final pendingOrders = allOrders.where((order) => order.status == 'pending' || order.status == 'Menunggu Konfirmasi').toList();
     
     final onDeliveryOrders = allOrders.where((order) => 
-        order.status == 'on_delivery' || 
+        order.status == 'Delivery' || 
         order.status == 'Diproses' || 
         order.status == 'Siap Diambil' ||
         (order.status == 'Menunggu Konfirmasi' && orderProvider.currentlyProcessingOrderId == order.orderId)

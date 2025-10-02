@@ -1,5 +1,3 @@
-// lib/screens/order_detail_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:food_delivery_app/models/search_model.dart';
 import 'package:intl/intl.dart';
@@ -14,7 +12,6 @@ class OrderDetailScreen extends StatelessWidget {
   static const double deliveryFee = 10000; 
   static const double adminFee = 1000;
 
-  // Konstruktor menggunakan String orderId
   const OrderDetailScreen({super.key, required this.orderId});
   
   void _completeOrder(BuildContext context, String currentOrderId) {
@@ -23,7 +20,6 @@ class OrderDetailScreen extends StatelessWidget {
 
     orderProvider.updateOrderStatus(currentOrderId, 'Selesai');
 
-    // Navigasi ke tab Completed (index 3) di OrdersPage (Index 2 di MainPage)
     tabProvider.setOrdersInitialTab(3); 
     tabProvider.changeTab(2); 
 
@@ -39,10 +35,8 @@ class OrderDetailScreen extends StatelessWidget {
     return Consumer<OrderProvider>(
       builder: (context, orderProvider, child) {
 
-        // 1. Ambil data pesanan dari provider menggunakan orderId
         final currentOrder = orderProvider.orderHistory.firstWhere(
           (o) => o.orderId == orderId,
-          // Fallback jika order tidak ditemukan
           orElse: () => OrderModel(
             orderId: orderId,
             restaurantName: 'Pesanan Tidak Ditemukan',
@@ -62,7 +56,6 @@ class OrderDetailScreen extends StatelessWidget {
 
         Widget? bottomButton;
         
-        // --- LOGIKA TOMBOL ---
         if (isPendingPayment) {
           bottomButton = ElevatedButton(
             onPressed: () {
@@ -112,7 +105,6 @@ class OrderDetailScreen extends StatelessWidget {
               _buildStatusSection(currentOrder.status),
               const SizedBox(height: 16),
               
-              // --- GIF SECTION: COMPLETED ---
               if (isCompleted) 
                 Center(
                   child: Padding(
@@ -126,15 +118,13 @@ class OrderDetailScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-              // --- END GIF SECTION: COMPLETED ---
 
-              // --- GIF SECTION: ON DELIVERY ---
               if (isOnDelivery) 
                 Center(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 16.0),
                     child: Image.asset(
-                      'assets/gifs/On_Delivery.gif', // Path GIF On Delivery
+                      'assets/gifs/On_Delivery.gif', 
                       height: 150, 
                       fit: BoxFit.contain,
                       errorBuilder: (context, error, stackTrace) => 
@@ -142,7 +132,6 @@ class OrderDetailScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-              // --- END GIF SECTION: ON DELIVERY ---
               
               _buildDetailCard(context, currentOrder, subtotal),
               const SizedBox(height: 16),
@@ -160,7 +149,6 @@ class OrderDetailScreen extends StatelessWidget {
     );
   }
 
-  // ... (Widget Builder Methods seperti yang ada di kode Anda sebelumnya)
   
   Widget _buildStatusSection(String status) {
     Color backgroundColor;
@@ -178,7 +166,7 @@ class OrderDetailScreen extends StatelessWidget {
         iconColor = Colors.blue.shade800;
         icon = Icons.watch_later;
         break;
-      case 'on_delivery': // Tambahkan case untuk status pengiriman
+      case 'Delivery': 
         backgroundColor = Colors.orange.shade100;
         iconColor = Colors.orange.shade800;
         icon = Icons.delivery_dining;

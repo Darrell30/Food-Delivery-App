@@ -17,7 +17,6 @@ class _DiscountPageState extends State<DiscountPage> {
   @override
   void initState() {
     super.initState();
-    // Memanggil fungsi getDiskon() dari service
     _restaurantsFuture = _searchService.getDiskon();
   }
 
