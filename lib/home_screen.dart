@@ -246,7 +246,6 @@ class _CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             ),
           ],
           onSelected: (value) {
-            // Aksi saat item dipilih
             if (value == 1) {
               Navigator.push(
                 context,
