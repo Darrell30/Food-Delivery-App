@@ -5,6 +5,7 @@ import 'package:food_delivery_app/models/order_model.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:food_delivery_app/providers/order_provider.dart';
+import 'package:food_delivery_app/screens/order_detail_screen.dart'; // Import OrderDetailScreen
 
 class OrderHistoryCard extends StatelessWidget {
   final OrderModel order;
@@ -43,7 +44,7 @@ class OrderHistoryCard extends StatelessWidget {
     }
   }
 
-  // FUNGSI BARU UNTUK MENAMPILKAN DIALOG KONFIRMASI
+  // FUNGSI UNTUK MENAMPILKAN DIALOG KONFIRMASI PEMBATALAN
   void _showCancelConfirmationDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -153,7 +154,13 @@ class OrderHistoryCard extends StatelessWidget {
                 
                 TextButton(
                   onPressed: () {
-                    // Logic to navigate to order detail
+                    // Navigate to Order Detail Screen
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => OrderDetailScreen(order: order),
+                      ),
+                    );
                   },
                   child: const Text('View Detail'), // Diubah ke Bahasa Inggris
                 ),

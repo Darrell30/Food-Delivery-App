@@ -1,10 +1,11 @@
+// lib/providers/order_provider.dart
+
 import 'dart:async';
 import 'dart:convert';
-import 'package:flutter/material.dart'; // <-- 1. IMPORT YANG BENAR
+import 'package:flutter/material.dart'; 
 import 'package:food_delivery_app/models/order_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-//                           ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 2. TAMBAHKAN INI
 class OrderProvider with ChangeNotifier {
   static const String _ordersKey = 'my_order_history';
   List<OrderModel> _orderHistory = [];
@@ -53,8 +54,8 @@ class OrderProvider with ChangeNotifier {
     await _saveOrders();
   }
 
-  Future<void> _updateOrderStatus(String orderId, String newStatus) async {
-    // 3. PERBAIKI BAGIAN INI DARI 'order.id' MENJADI 'order.orderId'
+  // FUNGSI UNTUK MEMPERBARUI STATUS SECARA UMUM (Digunakan oleh PaymentDetailScreen)
+  Future<void> updateOrderStatus(String orderId, String newStatus) async {
     final orderIndex = _orderHistory.indexWhere((order) => order.orderId == orderId);
     if (orderIndex != -1) {
       final oldOrder = _orderHistory[orderIndex];
@@ -70,8 +71,10 @@ class OrderProvider with ChangeNotifier {
       await _saveOrders();
     }
   }
+  
+  // FUNGSI UNTUK MEMBATALKAN PESANAN (Dipanggil dari OrderHistoryCard)
   Future<void> cancelOrder(String orderId) async {
-    // Stop timer if this order is currently being processed (for pickup orders)
+    // Hentikan timer jika pesanan ini sedang diproses (untuk pesanan pickup)
     if (_currentlyProcessingOrderId == orderId) {
       _processingTimer?.cancel();
       _processingTimer = null;
@@ -79,7 +82,7 @@ class OrderProvider with ChangeNotifier {
       _currentlyProcessingOrderId = null;
     }
 
-    await _updateOrderStatus(orderId, 'Dibatalkan');
+    await updateOrderStatus(orderId, 'Dibatalkan');
   }
 
   void startOrderProcessing(String orderId) {
@@ -87,7 +90,7 @@ class OrderProvider with ChangeNotifier {
     
     _currentlyProcessingOrderId = orderId;
     _orderProcessingTime = 15;
-    _updateOrderStatus(orderId, 'Diproses (Memasak)');
+    updateOrderStatus(orderId, 'Diproses (Memasak)');
 
     _processingTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_orderProcessingTime > 0) {
@@ -102,7 +105,7 @@ class OrderProvider with ChangeNotifier {
   }
 
   void _finishProcessing(String orderId) {
-    _updateOrderStatus(orderId, 'Siap Diambil');
+    updateOrderStatus(orderId, 'Siap Diambil');
     _currentlyProcessingOrderId = null;
     notifyListeners();
   }
