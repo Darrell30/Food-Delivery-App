@@ -49,7 +49,12 @@ class UserData extends ChangeNotifier {
     _userName = "Darrell";
     await prefs.setString('userName', _userName);
 
-    _userAddress = "Jl. Tlk. Intan, Pejagalan, Penjaringan, Jakarta";
+    String? currentAddress = prefs.getString('userAddress');
+    if (currentAddress != null && currentAddress.isNotEmpty) {
+      _userAddress = currentAddress;
+    } else {
+      _userAddress = "Set Adddress";
+    }
     await prefs.setString('userAddress', _userAddress);
 
     String? currentProfilePath = prefs.getString('profileImagePath');
@@ -66,15 +71,21 @@ class UserData extends ChangeNotifier {
     notifyListeners();
   }
 
+  // ✅ --- THIS FUNCTION IS NOW CORRECT --- ✅
   Future<void> logout() async {
+    // 1. Reset the app's state in memory.
     _userName = "Enter Your Name";
     _userAddress = "Set my address";
     _profileImagePath = "";
     _orders = [];
 
+    // 2. Only clear the session flag and transactional data.
+    // We NO LONGER remove userName, userAddress, or profileImagePath.
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('isLoggedIn', false);
-    // We leave the user's profile info saved for the next login
+    await prefs.remove('userOrders'); 
+    
+    // 3. Do not call notifyListeners() to prevent freezes.
   }
 
   Future<void> addNewOrder(OrderModel newOrder) async {
@@ -86,15 +97,13 @@ class UserData extends ChangeNotifier {
     await prefs.setString('userOrders', json.encode(ordersList));
   }
   
-  // ✅ FIX: Implemented the missing logic
   Future<void> updateProfileImagePath(String newPath) async {
     _profileImagePath = newPath;
-    notifyListeners(); // Tell the UI to update
+    notifyListeners();
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('profileImagePath', newPath); // Save the new path
+    await prefs.setString('profileImagePath', newPath);
   }
 
-  // ✅ FIX: Implemented the missing logic
   Future<void> updateUserAddress(String newAddress) async {
     _userAddress = newAddress;
     notifyListeners();
@@ -102,7 +111,6 @@ class UserData extends ChangeNotifier {
     await prefs.setString('userAddress', newAddress);
   }
 
-  // ✅ FIX: Implemented the missing logic
   Future<void> updateUserName(String newName) async {
     _userName = newName;
     notifyListeners();
