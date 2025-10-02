@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:food_delivery_app/models/order_model.dart';
+import 'package:food_delivery_app/models/search_model.dart';
 import 'package:food_delivery_app/widgets/order_history_card.dart';
 import '../providers/order_provider.dart'; 
 

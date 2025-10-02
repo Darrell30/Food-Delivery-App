@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:food_delivery_app/models/order_model.dart';
+import 'package:food_delivery_app/models/search_model.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:food_delivery_app/providers/order_provider.dart';
@@ -186,7 +186,7 @@ class OrderHistoryCard extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => OrderDetailScreen(order: order),
+                            builder: (context) => OrderDetailScreen(orderId: order.orderId),
                           ),
                         );
                       },

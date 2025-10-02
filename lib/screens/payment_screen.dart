@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:food_delivery_app/models/order_model.dart';
+import 'package:food_delivery_app/models/search_model.dart';
 import 'package:food_delivery_app/models/restaurant.dart';
 import 'package:food_delivery_app/services/order_service.dart';
 import 'package:food_delivery_app/screens/order_success_screen.dart';
@@ -44,7 +44,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
     Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute(
-        builder: (context) => OrderSuccessScreen(order: newOrder),
+        builder: (context) => OrderSuccessScreen(orderId: newOrder.orderId),
       ),
       (route) => false, 
     );

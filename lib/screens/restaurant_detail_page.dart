@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:food_delivery_app/providers/tab_provider.dart';
 import 'package:food_delivery_app/providers/order_provider.dart';
 import 'package:food_delivery_app/models/restaurant.dart';
-import 'package:food_delivery_app/models/order_model.dart';
+import 'package:food_delivery_app/models/search_model.dart';
 import 'package:food_delivery_app/models/menu_item.dart';
 
 class RestaurantDetailPage extends StatefulWidget {

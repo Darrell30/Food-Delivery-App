@@ -1,3 +1,4 @@
+// lib/providers/tab_provider.dart
 import 'package:flutter/material.dart';
 
 class TabProvider with ChangeNotifier {

@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart'; 
-import 'package:food_delivery_app/models/order_model.dart';
+import 'package:food_delivery_app/models/search_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class OrderProvider with ChangeNotifier {

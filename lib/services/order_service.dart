@@ -1,4 +1,4 @@
-import 'package:food_delivery_app/models/order_model.dart';
+import 'package:food_delivery_app/models/search_model.dart';
 import 'package:food_delivery_app/models/menu_item.dart';
 
 class OrderService {
