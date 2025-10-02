@@ -3,13 +3,11 @@ import 'package:provider/provider.dart';
 import 'package:food_delivery_app/providers/order_provider.dart';
 import 'package:food_delivery_app/models/order_model.dart';
 import 'package:food_delivery_app/widgets/order_history_card.dart';
-import 'package:food_delivery_app/providers/tab_provider.dart'; // Import TabProvider
+import 'package:food_delivery_app/providers/tab_provider.dart';
 
-// Menerima initialTabIndex
 class OrdersPage extends StatefulWidget {
-  // Pertahankan ini, tetapi kita akan mengutamakan nilai dari Provider
   final int initialTabIndex; 
-  const OrdersPage({super.key, this.initialTabIndex = 0}); // Default ke index 1: All
+  const OrdersPage({super.key, this.initialTabIndex = 0});
 
   @override
   State<OrdersPage> createState() => _OrdersPageState();
@@ -22,14 +20,10 @@ class _OrdersPageState extends State<OrdersPage> with SingleTickerProviderStateM
   void initState() {
     super.initState();
     
-    // Ambil nilai awal dari Provider untuk TabController
     final tabProvider = Provider.of<TabProvider>(context, listen: false);
     
-    // Gunakan nilai dari Provider, jika sudah diatur. Jika tidak, gunakan default.
-    // Jika OrdersPage dibuka dari MainPage, index akan diupdate melalui Provider/initState.
     final initialIndex = tabProvider.ordersInitialTabIndex;
 
-    // Inisialisasi TabController dengan panjang 5 dan memilih tab awal
     _tabController = TabController(
       length: 5,
       initialIndex: initialIndex, 
@@ -69,14 +63,15 @@ class _OrdersPageState extends State<OrdersPage> with SingleTickerProviderStateM
     final allOrders = orderProvider.orderHistory;
     final isLoading = orderProvider.isLoading;
 
-    // Filter order berdasarkan status
     final pendingOrders = allOrders.where((order) => order.status == 'pending' || order.status == 'Menunggu Konfirmasi').toList();
-    // Diperluas untuk mencakup 'on_delivery' yang baru dan status proses lainnya
+    
     final onDeliveryOrders = allOrders.where((order) => 
         order.status == 'on_delivery' || 
         order.status == 'Diproses' || 
-        order.status == 'Siap Diambil'
+        order.status == 'Siap Diambil' ||
+        (order.status == 'Menunggu Konfirmasi' && orderProvider.currentlyProcessingOrderId == order.orderId)
     ).toList();
+    
     final completedOrders = allOrders.where((order) => order.status == 'Selesai').toList();
     final cancelledOrders = allOrders.where((order) => order.status == 'Dibatalkan').toList();
 
@@ -85,11 +80,11 @@ class _OrdersPageState extends State<OrdersPage> with SingleTickerProviderStateM
       appBar: AppBar(
         title: const Text('My Orders'),
         bottom: TabBar(
-          controller: _tabController, // Menggunakan TabController
+          controller: _tabController,
           isScrollable: true,
           tabs: const [
             Tab(text: 'Pending Payment'),
-            Tab(text: 'All'), // Index 1
+            Tab(text: 'All'),
             Tab(text: 'On Delivery'),
             Tab(text: 'Completed'),
             Tab(text: 'Cancelled')
@@ -99,7 +94,7 @@ class _OrdersPageState extends State<OrdersPage> with SingleTickerProviderStateM
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : TabBarView(
-              controller: _tabController, // Menggunakan TabController
+              controller: _tabController,
               children: [
                 _buildOrderList(context, pendingOrders),
                 _buildOrderList(context, allOrders),

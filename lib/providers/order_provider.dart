@@ -1,5 +1,4 @@
 // lib/providers/order_provider.dart
-
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart'; 
@@ -54,7 +53,6 @@ class OrderProvider with ChangeNotifier {
     await _saveOrders();
   }
 
-  // FUNGSI UNTUK MEMPERBARUI STATUS SECARA UMUM (Digunakan oleh PaymentDetailScreen)
   Future<void> updateOrderStatus(String orderId, String newStatus) async {
     final orderIndex = _orderHistory.indexWhere((order) => order.orderId == orderId);
     if (orderIndex != -1) {
@@ -72,9 +70,7 @@ class OrderProvider with ChangeNotifier {
     }
   }
   
-  // FUNGSI UNTUK MEMBATALKAN PESANAN (Dipanggil dari OrderHistoryCard)
   Future<void> cancelOrder(String orderId) async {
-    // Hentikan timer jika pesanan ini sedang diproses (untuk pesanan pickup)
     if (_currentlyProcessingOrderId == orderId) {
       _processingTimer?.cancel();
       _processingTimer = null;
@@ -89,7 +85,7 @@ class OrderProvider with ChangeNotifier {
     if (_processingTimer != null && _processingTimer!.isActive) return;
     
     _currentlyProcessingOrderId = orderId;
-    _orderProcessingTime = 15;
+    _orderProcessingTime = 10;
     updateOrderStatus(orderId, 'Diproses (Memasak)');
 
     _processingTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
@@ -97,15 +93,32 @@ class OrderProvider with ChangeNotifier {
         _orderProcessingTime--;
         notifyListeners();
       } else {
+        // --- START PERBAIKAN DI SINI ---
         timer.cancel();
+        
+        // 1. Perbarui status pesanan menjadi 'Siap Diambil'
+        // Gunakan variabel lokal untuk orderId karena _currentlyProcessingOrderId akan di-reset.
+        final finishedOrderId = _currentlyProcessingOrderId; 
+        if (finishedOrderId != null) {
+          updateOrderStatus(finishedOrderId, 'Siap Diambil');
+        }
+
+        // 2. Reset variabel timer
         _processingTimer = null;
-        _finishProcessing(orderId);
+        _orderProcessingTime = 0;
+        _currentlyProcessingOrderId = null;
+        
+        // notifyListeners() dipanggil oleh updateOrderStatus, tetapi kita panggil lagi untuk memastikan state OrderProvider bersih.
+        notifyListeners(); 
+        // --- END PERBAIKAN DI SINI ---
       }
     });
   }
 
-  void _finishProcessing(String orderId) {
-    updateOrderStatus(orderId, 'Siap Diambil');
+  void stopOrderProcessing() {
+    _processingTimer?.cancel();
+    _processingTimer = null;
+    _orderProcessingTime = 0;
     _currentlyProcessingOrderId = null;
     notifyListeners();
   }
