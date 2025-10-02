@@ -85,7 +85,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   onTap: () {
                     final Restaurant? restaurantData =
                         _searchService.getRestaurantByName('Burger King');
-
                     if (restaurantData != null) {
                       Navigator.push(
                         context,
@@ -94,10 +93,6 @@ class _HomeScreenState extends State<HomeScreen> {
                             restaurant: restaurantData,
                           ),
                         ),
-                      );
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Detail restoran tidak ditemukan!')),
                       );
                     }
                   },
@@ -109,11 +104,27 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               const SizedBox(width: 10),
-              const Expanded(
-                child: ProductCard(
-                  name: "7-Eleven",
-                  subtitle: "29 min • \$2.99 delivery",
-                  imagePath: "assets/icons/seven-eleven.png",
+              Expanded(
+                child: GestureDetector(
+                  onTap: () {
+                    final Restaurant? restaurantData =
+                        _searchService.getRestaurantByName('Seven Eleven');
+                    if (restaurantData != null) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => RestaurantDetailPage(
+                            restaurant: restaurantData,
+                          ),
+                        ),
+                      );
+                    }
+                  },
+                  child: const ProductCard(
+                    name: "7-Eleven",
+                    subtitle: "29 min • \$2.99 delivery",
+                    imagePath: "assets/icons/seven-eleven.png",
+                  ),
                 ),
               ),
             ],
@@ -121,21 +132,58 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(height: 20),
           const SectionTitle(title: "Special Offers for You"),
           const SizedBox(height: 10),
-          const Row(
+          Row(
             children: [
               Expanded(
-                child: ProductCard(
-                  name: "Ramen House",
-                  subtitle: "Free delivery",
-                  imagePath: "assets/icons/Ramen.jpeg",
+                child: GestureDetector(
+                  onTap: () {
+                    final Restaurant? restaurantData =
+                        _searchService.getRestaurantByName('Ramen House');
+                    if (restaurantData != null) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => RestaurantDetailPage(
+                            restaurant: restaurantData,
+                          ),
+                        ),
+                      );
+                    }
+                  },
+                  child: const ProductCard(
+                    name: "Ramen House",
+                    subtitle: "Free delivery",
+                    imagePath: "assets/icons/Ramen.jpeg",
+                  ),
                 ),
               ),
-              SizedBox(width: 10),
+              const SizedBox(width: 10),
+              //Sushi World
               Expanded(
-                child: ProductCard(
-                  name: "Sushi World",
-                  subtitle: "20% OFF",
-                  imagePath: "assets/icons/Sushi.jpeg",
+                child: GestureDetector(
+                  onTap: () {
+                    final Restaurant? restaurantData =
+                        _searchService.getRestaurantByName('Sushi World');
+                    if (restaurantData != null) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => RestaurantDetailPage(
+                            restaurant: restaurantData,
+                          ),
+                        ),
+                      );
+                    } else {
+                       ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Detail restoran "Sushi World" tidak ditemukan!')),
+                      );
+                    }
+                  },
+                  child: const ProductCard(
+                    name: "Sushi World",
+                    subtitle: "20% OFF",
+                    imagePath: "assets/icons/Sushi.jpeg",
+                  ),
                 ),
               ),
             ],
@@ -264,7 +312,7 @@ class _CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                   value: 1,
                   child: Row(
                     children: const [
-                      Icon(Icons.account_balance_wallet, color: Colors.blue),
+                      Icon(Icons.account_balance_wallet, color: Color.fromRGBO(39, 0, 197, 1)),
                       SizedBox(width: 10),
                       Text("My Balance"),
                     ],
@@ -306,7 +354,7 @@ class _BalanceCard extends StatelessWidget {
           children: [
             const CircleAvatar(
               backgroundColor: Color(0xFFE0F7FA),
-              child: Icon(Icons.account_balance_wallet, color: Color(0xFF00838F)),
+              child: Icon(Icons.account_balance_wallet, color: Color.fromRGBO(39, 0, 197, 1)),
             ),
             const SizedBox(width: 12),
             Text(
