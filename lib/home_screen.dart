@@ -6,6 +6,9 @@ import '../providers/tab_provider.dart';
 import '../user_data.dart';
 import '../profile/map_screen.dart';
 import 'profile/screens/balance_screen.dart';
+import 'screens/restaurant_detail_page.dart';
+import 'services/search_service.dart';
+import 'models/restaurant.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -15,6 +18,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final SearchService _searchService = SearchService();
+
   final List<String> promoImagePaths = [
     'assets/icons/promo1.jpg',
     'assets/icons/promo2.jpg',
@@ -63,27 +68,48 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: const _CustomAppBar(), // Menggunakan AppBar yang sudah dioptimalkan
+      appBar: const _CustomAppBar(),
       body: ListView(
         padding: const EdgeInsets.all(10),
         children: [
           _buildPromoSlider(),
           _buildPageIndicator(),
-          const _BalanceCard(), // Menggunakan BalanceCard yang sudah dioptimalkan
+          const _BalanceCard(),
           const SizedBox(height: 20),
           const SectionTitle(title: "Order Within Vicinity"),
           const SizedBox(height: 10),
-          const Row(
+          Row(
             children: [
               Expanded(
-                child: ProductCard(
-                  name: "Burger King",
-                  subtitle: "47 min • \$3.99 delivery",
-                  imagePath: "assets/icons/burger.jpg",
+                child: GestureDetector(
+                  onTap: () {
+                    final Restaurant? restaurantData =
+                        _searchService.getRestaurantByName('Burger King');
+
+                    if (restaurantData != null) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => RestaurantDetailPage(
+                            restaurant: restaurantData,
+                          ),
+                        ),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Detail restoran tidak ditemukan!')),
+                      );
+                    }
+                  },
+                  child: const ProductCard(
+                    name: "Burger King",
+                    subtitle: "47 min • \$3.99 delivery",
+                    imagePath: "assets/icons/burger.jpg",
+                  ),
                 ),
               ),
-              SizedBox(width: 10),
-              Expanded(
+              const SizedBox(width: 10),
+              const Expanded(
                 child: ProductCard(
                   name: "7-Eleven",
                   subtitle: "29 min • \$2.99 delivery",
@@ -219,39 +245,41 @@ class _CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           ],
         ),
       ),
-      // ### PERUBAHAN FUNGSI PANAH DI SINI ###
       actions: [
-        PopupMenuButton<int>(
-          tooltip: "Tampilkan opsi alamat",
-          icon: const Icon(Icons.keyboard_arrow_down, color: Colors.black),
-          itemBuilder: (context) => [
-            // Item 1: Menampilkan alamat lengkap (tidak bisa diklik)
-            PopupMenuItem(
-              enabled: false,
-              child: Text(
-                userData.userAddress,
-                style: const TextStyle(fontWeight: FontWeight.normal, color: Colors.black87),
-              ),
-            ),
-            const PopupMenuDivider(),
-            PopupMenuItem(
-              value: 1,
-              child: Row(
-                children: const [
-                  Icon(Icons.account_balance_wallet, color: Color.fromRGBO(39, 0, 197, 1)),
-                  SizedBox(width: 10),
-                  Text("My Balance"),
-                ],
-              ),
-            ),
-          ],
-          onSelected: (value) {
-            if (value == 1) {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const BalanceScreen()),
-              );
-            }
+        Consumer<UserData>(
+          builder: (context, userDataConsumer, child) {
+            return PopupMenuButton<int>(
+              tooltip: "Tampilkan opsi alamat",
+              icon: const Icon(Icons.keyboard_arrow_down, color: Colors.black),
+              itemBuilder: (context) => [
+                PopupMenuItem(
+                  enabled: false,
+                  child: Text(
+                    userDataConsumer.userAddress,
+                    style: const TextStyle(fontWeight: FontWeight.normal, color: Colors.black87),
+                  ),
+                ),
+                const PopupMenuDivider(),
+                PopupMenuItem(
+                  value: 1,
+                  child: Row(
+                    children: const [
+                      Icon(Icons.account_balance_wallet, color: Colors.blue),
+                      SizedBox(width: 10),
+                      Text("My Balance"),
+                    ],
+                  ),
+                ),
+              ],
+              onSelected: (value) {
+                if (value == 1) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const BalanceScreen()),
+                  );
+                }
+              },
+            );
           },
         ),
         const SizedBox(width: 10),
@@ -273,12 +301,12 @@ class _BalanceCard extends StatelessWidget {
       shadowColor: Colors.grey.withOpacity(0.2),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Row(
           children: [
             const CircleAvatar(
               backgroundColor: Color(0xFFE0F7FA),
-              child: Icon(Icons.account_balance_wallet, color: Color.fromRGBO(39, 0, 197, 1)),
+              child: Icon(Icons.account_balance_wallet, color: Color(0xFF00838F)),
             ),
             const SizedBox(width: 12),
             Text(
@@ -320,8 +348,8 @@ class _ActionItem extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: 20,
-              backgroundColor: const Color.fromARGB(25, 0, 13, 255),
-              child: Icon(icon, color: const Color.fromRGBO(39, 0, 197, 1), size: 22),
+              backgroundColor: const Color(0xFFE0F7FA),
+              child: Icon(icon, color: const Color(0xFF00838F), size: 22),
             ),
             const SizedBox(height: 5),
             Text(label, style: const TextStyle(fontSize: 12)),
@@ -362,7 +390,7 @@ class ProductCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height:   200,
+      height: 180,
       decoration: BoxDecoration(
         color: Colors.grey[200],
         borderRadius: BorderRadius.circular(10),

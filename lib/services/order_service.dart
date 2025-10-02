@@ -6,7 +6,7 @@ class OrderService {
   static final List<OrderModel> _orderHistory = [
     OrderModel(
       orderId: 'FD12345',
-      restaurantName: 'Burger Queen',
+      restaurantName: 'Burger King',
       totalPrice: 65000,
       orderDate: DateTime.now().subtract(const Duration(days: 2, hours: 5)),
       items: [

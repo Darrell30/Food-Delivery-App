@@ -10,13 +10,11 @@ class SearchService {
       cuisineType: 'Indonesian',
       rating: 4.9,
       tier: 'Top Tier',
-      // FIX: Using a direct image URL
       imageUrl: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?q=80&w=1974',
       menu: [
         MenuItem(id: 'm1', name: 'Sate Padang Daging', price: 28000, imageUrl: ''),
         MenuItem(id: 'm2', name: 'Kerupuk Kulit', price: 5000, imageUrl: ''),
       ],
-      // FIX: Moved inside the constructor parentheses
       deliveryTime: '25-35 min',
       deliveryFee: 4000,
     ),
@@ -36,7 +34,7 @@ class SearchService {
     ),
     Restaurant(
       id: 'r4',
-      name: 'Burger Queen',
+      name: 'Burger King',
       cuisineType: 'Western',
       rating: 4.5,
       tier: 'Top Tier',
@@ -45,7 +43,21 @@ class SearchService {
         MenuItem(id: 'm9', name: 'Classic Beef Burger', price: 75000, imageUrl: ''),
         MenuItem(id: 'm10', name: 'French Fries', price: 30000, imageUrl: ''),
       ],
-      deliveryTime: '20-30 min',
+      deliveryTime: '10-20 min',
+      deliveryFee: 4000,
+    ),
+     Restaurant(
+      id: 'r4',
+      name: 'Burger King',
+      cuisineType: 'Western',
+      rating: 4.5,
+      tier: 'Top Tier',
+      imageUrl: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500&q=80',
+      menu: [
+        MenuItem(id: 'm9', name: 'Classic Beef Burger', price: 75000, imageUrl: ''),
+        MenuItem(id: 'm10', name: 'French Fries', price: 30000, imageUrl: ''),
+      ],
+      deliveryTime: '10-20 min',
       deliveryFee: 4000,
     ),
   ];
@@ -71,5 +83,15 @@ class SearchService {
         .toList();
         
     return results;
+  }
+  
+  Restaurant? getRestaurantByName(String name) {
+    try {
+      return _allRestaurants.firstWhere(
+        (restaurant) => restaurant.name.toLowerCase() == name.toLowerCase(),
+      );
+    } catch (e) {
+      return null; 
+    }
   }
 }
