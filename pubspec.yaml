@@ -76,6 +76,7 @@ flutter:
     - assets/gifs/Completed.gif
     - assets/gifs/On_Delivery.gif
     - assets/gifs/Success_payment.gif
+    - assets/gifs/Cooking.gif
   # assets:
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg

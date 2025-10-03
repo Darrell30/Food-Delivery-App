@@ -49,11 +49,11 @@ class _OrderScreenState extends State<OrderScreen> {
 
   String _getStatusMessage(int secondsRemaining) {
     if (secondsRemaining > 5) {
-      return "Pesanan sedang dimasak";
+      return "Your Order is being Cooked";
     } else if (secondsRemaining >= 1) {
-      return "Pesanan sedang dikemas";
+      return "Your Order is being Packed";
     } else {
-      return "Pesanan sudah siap diambil!";
+      return "You can get your Order Now!";
     }
   }
 
@@ -67,11 +67,11 @@ class _OrderScreenState extends State<OrderScreen> {
       orderDate: DateTime.now(),
       items: [
         OrderItem(
-          menuItem: MenuItem(id: 'm1', name: 'Ayam Goreng', price: _pendingPrice, imageUrl: 'https://via.placeholder.com/150'), 
+          menuItem: MenuItem(id: 'm1', name: 'Fried Chicken', price: _pendingPrice, imageUrl: 'https://via.placeholder.com/150'), 
           quantity: 1,
         ),
       ],
-      status: 'Menunggu Konfirmasi', 
+      status: 'Waiting Confirmation', 
     );
 
     Provider.of<OrderProvider>(context, listen: false).addOrder(newOrderModel);
@@ -96,14 +96,14 @@ class _OrderScreenState extends State<OrderScreen> {
         !orderProvider.isProcessing && 
         orderProvider.currentlyProcessingOrderId == null && 
         orderProvider.orderHistory.any((o) => 
-            o.orderId == _currentOrder!.orderId && o.status == 'Siap Diambil'
+            o.orderId == _currentOrder!.orderId && o.status == 'Ready to Take'
         );
         
     final bool isOrderPending = _currentOrder == null || (_currentOrder != null && !isThisOrderProcessing && !isTimerFinished);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("Pesanan di ${widget.placeName}"),
+        title: Text("Order in ${widget.placeName}"),
       ),
       body: Center(
         child: Column(
@@ -112,13 +112,13 @@ class _OrderScreenState extends State<OrderScreen> {
 
             if (isOrderPending) ...[
               const Text(
-                "Pesanan 'Ayam Goreng' siap dibuat.",
+                "Order 'Fried Chicken' is ready to be made",
                 style: TextStyle(fontSize: 22),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 20),
               Text(
-                "Harga: Rp ${_pendingPrice.toStringAsFixed(0)}",
+                "Price: Rp ${_pendingPrice.toStringAsFixed(0)}",
                 style: const TextStyle(fontSize: 16),
                 textAlign: TextAlign.center,
               ),
@@ -130,12 +130,16 @@ class _OrderScreenState extends State<OrderScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 ),
-                child: const Text('Pesan', style: TextStyle(color: Colors.white, fontSize: 18)),
+                child: const Text('Order', style: TextStyle(color: Colors.white, fontSize: 18)),
               ),
             ],
 
             if (isThisOrderProcessing) ...[
-              const CircularProgressIndicator(),
+              Image.asset(
+                'assets/gifs/Cooking.gif', 
+                width: 350, 
+                height: 350, 
+              ),
               const SizedBox(height: 30),
               Text(
                 _getStatusMessage(orderProvider.secondsRemaining), 
@@ -144,13 +148,13 @@ class _OrderScreenState extends State<OrderScreen> {
               ),
               const SizedBox(height: 10),
               Text(
-                "Est. Waktu tersisa: ${orderProvider.secondsRemaining} detik",
+                "Est. Time Left: ${orderProvider.secondsRemaining} seconds",
                 style: TextStyle(fontSize: 16, color: Colors.grey[700]),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 20),
               const Text(
-                "Mohon menunggu sebentar...",
+                "Please Wait...",
                 style: TextStyle(fontSize: 16),
                 textAlign: TextAlign.center,
               ),
@@ -158,13 +162,13 @@ class _OrderScreenState extends State<OrderScreen> {
 
             if (isTimerFinished) ...[
               const Text(
-                "Pesanan sudah siap, silakan pick up",
+                "Order is done,Come get your Order",
                 style: TextStyle(fontSize: 22),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 20),
               const Text(
-                "Pesanan sudah siap diambil!",
+                "Order has been taken!",
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.green),
                 textAlign: TextAlign.center,
               ),
@@ -177,13 +181,13 @@ class _OrderScreenState extends State<OrderScreen> {
                     _currentOrder = null;
                   });
                   
-                  Navigator.pop(context);
+                  Navigator.pop(context); 
 
                   Future.microtask(() {
                     tabProvider.changeTab(2); 
 
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Pesanan selesai, membuka Riwayat Pesanan.')),
+                      const SnackBar(content: Text('Order Finished, Open Order History.')),
                     );
                   });
                 },
@@ -192,7 +196,7 @@ class _OrderScreenState extends State<OrderScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 ),
-                child: const Text('Kembali ke Riwayat Pesanan', style: TextStyle(color: Colors.white, fontSize: 18)),
+                child: const Text('Back to Order History', style: TextStyle(color: Colors.white, fontSize: 18)),
               ),
             ],
           ],
@@ -201,4 +205,3 @@ class _OrderScreenState extends State<OrderScreen> {
     );
   }
 }
-    
