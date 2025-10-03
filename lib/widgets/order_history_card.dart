@@ -78,14 +78,15 @@ class OrderHistoryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<OrderProvider>(
-      builder: (context, orderProvider, child) {
+    return Selector<OrderProvider, Map<String, dynamic>>(
+      selector: (context, provider) => {
+        'isProcessing': provider.isProcessing && provider.currentlyProcessingOrderId == order.orderId,
+        'secondsRemaining': provider.secondsRemaining,
+      },
+      builder: (context, data, child) {
         
-        final bool isProcessing = 
-            orderProvider.isProcessing && 
-            orderProvider.currentlyProcessingOrderId == order.orderId;
-            
-        final int secondsRemaining = orderProvider.secondsRemaining;
+        final bool isProcessing = data['isProcessing'] as bool;
+        final int secondsRemaining = data['secondsRemaining'] as int;
 
         final totalItems = order.items.fold(0, (sum, item) => sum + item.quantity);
         final formattedDate = DateFormat('d MMMM yyyy, HH:mm').format(order.orderDate);
@@ -201,4 +202,4 @@ class OrderHistoryCard extends StatelessWidget {
       },
     );
   }
-}//
+}
