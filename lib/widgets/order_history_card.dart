@@ -13,15 +13,23 @@ class OrderHistoryCard extends StatelessWidget {
   Color _getStatusBackgroundColor(String status) {
   switch (status) {
     case 'Completed': 
+    case 'Selesai':
       return Colors.green.shade100;
     case 'Cancelled': 
+    case 'Dibatalkan':
       return Colors.red.shade100;
+      
     case 'pending':
+    case 'Pending Payment':
     case 'In Progress': 
+    case 'In Progress (Cooking)': 
     case 'Ready for Pickup': 
     case 'Awaiting Confirmation': 
+    case 'On Delivery': 
+    case 'Delivery':
     case 'on_delivery': 
       return Colors.orange.shade100;
+      
     default:
       return Colors.grey.shade300;
   }
@@ -30,15 +38,23 @@ class OrderHistoryCard extends StatelessWidget {
 Color _getStatusTextColor(String status) {
   switch (status) {
     case 'Completed': 
+    case 'Selesai':
       return Colors.green.shade800;
     case 'Cancelled': 
+    case 'Dibatalkan':
       return Colors.red.shade800;
+      
     case 'pending':
+    case 'Pending Payment':
     case 'In Progress': 
+    case 'In Progress (Cooking)': 
     case 'Ready for Pickup': 
     case 'Awaiting Confirmation': 
+    case 'On Delivery': 
+    case 'Delivery':
     case 'on_delivery': 
       return Colors.orange.shade800;
+      
     default:
       return Colors.black;
   }
@@ -93,7 +109,8 @@ Color _getStatusTextColor(String status) {
         
         final bool canBeCancelled = 
             order.status == 'pending' || 
-            order.status == 'Waiting for Confirmation';
+            order.status == 'Awaiting Confirmation' ||
+            order.status == 'Pending Payment';
 
         return Card(
           margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),

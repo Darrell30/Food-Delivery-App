@@ -63,17 +63,32 @@ class _OrdersPageState extends State<OrdersPage> with SingleTickerProviderStateM
     final allOrders = orderProvider.orderHistory;
     final isLoading = orderProvider.isLoading;
 
-    final pendingOrders = allOrders.where((order) => order.status == 'pending' || order.status == 'Awaiting Confirmation').toList();
+    // Filter untuk tab 'Pending Payment'
+    final pendingOrders = allOrders.where((order) => 
+        order.status == 'pending' || 
+        order.status == 'Awaiting Confirmation' ||
+        order.status == 'Pending Payment' // Tambahkan status standar
+    ).toList();
     
+    // Filter untuk tab 'On Delivery' (sedang diproses, dimasak, siap diambil, atau dikirim)
     final onDeliveryOrders = allOrders.where((order) => 
+        order.status == 'On Delivery' ||         // Status pengiriman setelah pembayaran
         order.status == 'Delivery' || 
         order.status == 'In progress' || 
-        order.status == 'Ready for Pickup' ||
+        order.status == 'In Progress (Cooking)' || // Status saat timer berjalan (pickup)
+        order.status == 'Ready for Pickup' ||      // Status setelah timer selesai (pickup)
         (order.status == 'Awaiting Confirmation' && orderProvider.currentlyProcessingOrderId == order.orderId)
     ).toList();
     
-    final completedOrders = allOrders.where((order) => order.status == 'Completed').toList();
-    final cancelledOrders = allOrders.where((order) => order.status == 'Cancelled').toList();
+    final completedOrders = allOrders.where((order) => 
+        order.status == 'Completed' ||
+        order.status == 'Selesai' // Menangani potensi status lama
+    ).toList();
+    
+    final cancelledOrders = allOrders.where((order) => 
+        order.status == 'Cancelled' ||
+        order.status == 'Dibatalkan' // Menangani potensi status lama
+    ).toList();
 
 
     return Scaffold(

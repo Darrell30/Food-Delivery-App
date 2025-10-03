@@ -50,7 +50,7 @@ class OrderDetailScreen extends StatelessWidget {
         final subtotal = currentOrder.totalPrice - deliveryFee - adminFee;
 
         final isCompleted = currentOrder.status == 'Completed';
-        final isPendingPayment = currentOrder.status == 'Pending' || currentOrder.status == 'Waiting for Confirmation';
+        final isPendingPayment = currentOrder.status == 'Pending' || currentOrder.status == 'Waiting for Confirmation' || currentOrder.status == 'pending' || currentOrder.status == 'Inproses';
         final isOnDelivery = currentOrder.status == 'On Delivery'; 
         final isReadyToPickUp = currentOrder.status == 'Ready for Pickup';
 
@@ -71,7 +71,7 @@ class OrderDetailScreen extends StatelessWidget {
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(vertical: 16),
             ),
-            child: Text('Bayar Sekarang (Rp ${currentOrder.totalPrice.toStringAsFixed(0)})'),
+            child: Text('Pay Now (Rp ${currentOrder.totalPrice.toStringAsFixed(0)})'),
           );
         } else if (isOnDelivery) {
           bottomButton = ElevatedButton(
@@ -178,7 +178,7 @@ class OrderDetailScreen extends StatelessWidget {
         break;
       default:
         backgroundColor = Colors.yellow.shade100;
-        iconColor = Colors.yellow.shade800;
+        iconColor = const Color.fromARGB(255, 11, 188, 5);
         icon = Icons.access_time;
     }
 

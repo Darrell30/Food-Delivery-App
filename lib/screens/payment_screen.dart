@@ -87,7 +87,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
             padding: const EdgeInsets.symmetric(vertical: 16),
             disabledBackgroundColor: Colors.grey[300],
           ),
-          child: const Text('Bayar Sekarang'),
+          child: const Text('Pay Now'),
         ),
       ),
     );

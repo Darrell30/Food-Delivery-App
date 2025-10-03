@@ -12,7 +12,7 @@ class OrderSuccessScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Pesanan Berhasil'),
+        title: const Text('Order Success'),
         automaticallyImplyLeading: false, 
       ),
       body: Center(

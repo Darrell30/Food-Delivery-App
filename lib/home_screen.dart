@@ -64,7 +64,7 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: Colors.white,
       appBar: const _CustomAppBar(),
       body: ListView(
-        padding: const EdgeInsets.all(10),
+        padding: const EdgeInsets.only(top: 32, left: 10, right: 10),
         children: [
           _buildPromoSlider(),
           _buildPageIndicator(),
