@@ -33,10 +33,10 @@ class _DiscountPageState extends State<DiscountPage> {
             return const Center(child: CircularProgressIndicator());
           }
           if (snapshot.hasError) {
-            return const Center(child: Text('Gagal memuat data diskon.'));
+            return const Center(child: Text('Failed to load discount data.'));
           }
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('Tidak ada diskon ditemukan.'));
+            return const Center(child: Text('No discounts found.'));
           }
 
           final restaurants = snapshot.data!;

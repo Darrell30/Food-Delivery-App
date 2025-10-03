@@ -89,13 +89,13 @@ class _SearchScreenState extends State<SearchScreen> {
                         icon: const Icon(Icons.clear),
                         onPressed: () {
                           _searchController.clear();
-                          FocusScope.of(context).unfocus(); // Sembunyikan keyboard
+                          FocusScope.of(context).unfocus(); 
                         },
                       )
                     : null,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(30.0),
-                  borderSide: BorderSide.none, // Hapus border default
+                  borderSide: BorderSide.none, 
                 ),
                 filled: true,
                 fillColor: Colors.grey[200],
@@ -110,10 +110,10 @@ class _SearchScreenState extends State<SearchScreen> {
                 : _searchResults.isEmpty
                     ? Center(
                         child: Text(
-                          _searchController.text.isEmpty
-                              ? 'Temukan restoran pilihan Anda!'
-                              : 'Tidak ada hasil untuk "${_searchController.text}".',
-                          textAlign: TextAlign.center,
+                           _searchController.text.isEmpty
+                              ? 'Find your preferred restaurant!'
+                              : 'No results for "${_searchController.text}".',
+                            textAlign: TextAlign.center,
                           style: const TextStyle(fontSize: 16, color: Colors.grey),
                         ),
                       )

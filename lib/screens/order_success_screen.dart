@@ -42,7 +42,7 @@ class OrderSuccessScreen extends StatelessWidget {
               ),
               const SizedBox(height: 15),
               Text(
-                'Pesanan Anda dengan ID $orderId sudah berhasil dikonfirmasi dan sedang diproses.',
+                'Your order with ID $orderId has been successfully confirmed and is currently being processed.',
                 style: const TextStyle(
                   fontSize: 16,
                   color: Colors.black87,
@@ -72,7 +72,7 @@ class OrderSuccessScreen extends StatelessWidget {
                   ),
                 ),
                 child: const Text(
-                  'Lihat Riwayat Pesanan',
+                  'View Order History',
                   style: TextStyle(fontSize: 18),
                 ),
               ),

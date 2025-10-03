@@ -5,7 +5,7 @@ import 'package:food_delivery_app/models/search_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class OrderProvider with ChangeNotifier {
-  static const String _ordersKey = 'my_order_history';
+  static const String _ordersKey = 'My_Order_History';
   List<OrderModel> _orderHistory = [];
   bool _isLoading = true;
 
@@ -77,7 +77,7 @@ class OrderProvider with ChangeNotifier {
       _currentlyProcessingOrderId = null;
     }
 
-    await updateOrderStatus(orderId, 'Dibatalkan');
+    await updateOrderStatus(orderId, 'Cancelled');
   }
 
   void startOrderProcessing(String orderId) {
@@ -85,7 +85,7 @@ class OrderProvider with ChangeNotifier {
     
     _currentlyProcessingOrderId = orderId;
     _orderProcessingTime = 10;
-    updateOrderStatus(orderId, 'Diproses (Memasak)');
+    updateOrderStatus(orderId, 'In Progress (Cooking)');
 
     _processingTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_orderProcessingTime > 0) {
@@ -97,7 +97,7 @@ class OrderProvider with ChangeNotifier {
         
         final finishedOrderId = _currentlyProcessingOrderId; 
         if (finishedOrderId != null) {
-          updateOrderStatus(finishedOrderId, 'Siap Diambil');
+          updateOrderStatus(finishedOrderId, 'Ready for Pickup');
         }
 
         _processingTimer = null;

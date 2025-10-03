@@ -37,7 +37,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
       items: orderedItems,
       totalPrice: widget.totalAmount,
       orderDate: DateTime.now(),
-      status: 'Diproses',
+      status: 'Inproses',
     );
 
     OrderService.addOrder(newOrder);
@@ -54,21 +54,21 @@ class _PaymentScreenState extends State<PaymentScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Pembayaran'),
+        title: const Text('Payment'),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Total yang Harus Dibayar', style: TextStyle(fontSize: 18, color: Colors.grey[700])),
-            const SizedBox(height: 8),
-            Text('Rp ${widget.totalAmount.toStringAsFixed(0)}', style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 24),
-            const Divider(),
-            const SizedBox(height: 16),
-            const Text('Pilih Metode Pembayaran', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 16),
+            Text('Total Payable', style: TextStyle(fontSize: 18, color: Colors.grey[700])),
+              const SizedBox(height: 8),
+              Text('Rp ${widget.totalAmount.toStringAsFixed(0)}', style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 24),
+              const Divider(),
+              const SizedBox(height: 16),
+              const Text('Select Payment Method', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 16),
 
             _buildPaymentOptionTile(title: 'GoPay', icon: Icons.account_balance_wallet, value: 'gopay'),
             _buildPaymentOptionTile(title: 'OVO', icon: Icons.wallet, value: 'ovo'),

@@ -17,7 +17,7 @@ class PaymentDetailScreen extends StatefulWidget {
 class _PaymentDetailScreenState extends State<PaymentDetailScreen> {
   String? _selectedPaymentMethod; 
   final List<Map<String, dynamic>> paymentOptions = [
-    {'title': 'GoPay Coins', 'icon': Icons.monetization_on, 'value': 'gopay_coins', 'balance': 7151, 'desc': '1 GoPay Coins setara dengan Rp1. Kamu bisa gabungin GoPay Coins dengan metode pembayaran lain.'},
+    {'title': 'GoPay Coins', 'icon': Icons.monetization_on, 'value': 'gopay_coins', 'balance': 7151, 'desc': '1 GoPay Coin is equal to Rp1. You can combine GoPay Coins with other payment methods.'},
     {'title': 'GoPay', 'icon': Icons.account_balance_wallet, 'value': 'gopay', 'balance': 0, 'is_default': true},
     {'title': '** 0397', 'icon': Icons.credit_card, 'value': 'card_0397', 'balance': null},
   ];
@@ -28,7 +28,7 @@ class _PaymentDetailScreenState extends State<PaymentDetailScreen> {
     Future.delayed(const Duration(seconds: 1), () {
       
       final orderProvider = Provider.of<OrderProvider>(context, listen: false);
-      orderProvider.updateOrderStatus(widget.order.orderId, 'on_delivery');
+      orderProvider.updateOrderStatus(widget.order.orderId, 'On Delivery');
       
       Provider.of<TabProvider>(context, listen: false).changeTab(2); 
 
@@ -46,7 +46,7 @@ class _PaymentDetailScreenState extends State<PaymentDetailScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Pilih metode pembayaran'),
+        title: const Text('Select Payment Method'),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -57,16 +57,16 @@ class _PaymentDetailScreenState extends State<PaymentDetailScreen> {
             _buildPaymentOptionTile(paymentOptions[0]),
             const SizedBox(height: 24),
             
-            const Text('Metode pembayaran', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            Text('Swipe kiri buat pilih metode utamamu', style: TextStyle(color: Colors.grey[600], fontSize: 12)),
+            const Text('Payment Methods', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            Text('Swipe left to select your primary method', style: TextStyle(color: Colors.grey[600], fontSize: 12)),
             
             ...paymentOptions.sublist(1).map(_buildPaymentOptionTile),
             const SizedBox(height: 24),
             
-            const Text('Tambah metode', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            _buildAddMethodTile(title: 'GoPay Tabungan by Jago', desc: 'Aktivasi & dapetin bunga 2.5% sekaligus transaksi', icon: Icons.savings),
-            _buildAddMethodTile(title: 'GoPay Later', desc: 'Dapatkan maks. diskon 50rb & limit s.d. 30jt. Aktifkan sekarang!', icon: Icons.schedule),
-            _buildAddMethodTile(title: 'Kartu kredit atau debit', desc: 'Visa, Mastercard, AMEX, dan JCB', icon: Icons.credit_card),
+            const Text('Add method', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            _buildAddMethodTile(title: 'GoPay Tabungan by Jago', desc: 'Activate & get 2.5% interest rate while transacting', icon: Icons.savings),
+            _buildAddMethodTile(title: 'GoPay Later', desc: 'Get max. 50k discount & limit up to 30jt. Activate now!', icon: Icons.schedule),
+            _buildAddMethodTile(title: 'Credit or debit card', desc: 'Visa, Mastercard, AMEX, and JCB', icon: Icons.credit_card),
             _buildAddMethodTile(title: 'LinkAja', desc: '', icon: Icons.link),
           ],
         ),

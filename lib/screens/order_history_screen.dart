@@ -20,12 +20,12 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Riwayat Pesanan'),
+        title: const Text('Order History'),
       ),
       body: _orderHistory.isEmpty
           ? const Center(
               child: Text(
-                'Anda belum pernah memesan.',
+                'You have not placed any orders.',
                 style: TextStyle(fontSize: 18, color: Colors.grey),
               ),
             )

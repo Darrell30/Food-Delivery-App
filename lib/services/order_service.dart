@@ -19,7 +19,7 @@ class OrderService {
           quantity: 1,
         ),
       ],
-      status: 'Selesai',
+      status: 'Completed',
     ),
   ];
 

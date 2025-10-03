@@ -18,7 +18,7 @@ class OrderDetailScreen extends StatelessWidget {
     final orderProvider = Provider.of<OrderProvider>(context, listen: false);
     final tabProvider = Provider.of<TabProvider>(context, listen: false);
 
-    orderProvider.updateOrderStatus(currentOrderId, 'Selesai');
+    orderProvider.updateOrderStatus(currentOrderId, 'Completed');
 
     tabProvider.setOrdersInitialTab(3); 
     tabProvider.changeTab(2); 
@@ -39,20 +39,20 @@ class OrderDetailScreen extends StatelessWidget {
           (o) => o.orderId == orderId,
           orElse: () => OrderModel(
             orderId: orderId,
-            restaurantName: 'Pesanan Tidak Ditemukan',
+            restaurantName: 'Order Not Found',
             items: [],
             totalPrice: deliveryFee + adminFee, 
             orderDate: DateTime.now(),
-            status: 'Dibatalkan',
+            status: 'Canceled',
           ), 
         );
         
         final subtotal = currentOrder.totalPrice - deliveryFee - adminFee;
-        
-        final isCompleted = currentOrder.status == 'Selesai';
-        final isPendingPayment = currentOrder.status == 'pending' || currentOrder.status == 'Menunggu Konfirmasi';
-        final isOnDelivery = currentOrder.status == 'on_delivery'; 
-        final isReadyToPickUp = currentOrder.status == 'Siap Diambil';
+
+        final isCompleted = currentOrder.status == 'Completed';
+        final isPendingPayment = currentOrder.status == 'Pending' || currentOrder.status == 'Waiting for Confirmation';
+        final isOnDelivery = currentOrder.status == 'On Delivery'; 
+        final isReadyToPickUp = currentOrder.status == 'Ready for Pickup';
 
         Widget? bottomButton;
         
@@ -81,7 +81,7 @@ class OrderDetailScreen extends StatelessWidget {
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(vertical: 16),
             ),
-            child: const Text('Konfirmasi Pengantaran (Selesai)'),
+            child: const Text('Delivery Confirmed (Completed)'),
           );
         } else if (isReadyToPickUp) {
           bottomButton = ElevatedButton(
@@ -91,13 +91,13 @@ class OrderDetailScreen extends StatelessWidget {
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(vertical: 16),
             ),
-            child: const Text('Ambil Pesanan'),
+            child: const Text('Pick Up Order'),
           );
         }
 
         return Scaffold(
           appBar: AppBar(
-            title: const Text('Detail Pesanan'),
+            title: const Text('Order Details'),
           ),
           body: ListView(
             padding: const EdgeInsets.all(16.0),
@@ -114,7 +114,7 @@ class OrderDetailScreen extends StatelessWidget {
                       height: 250, 
                       fit: BoxFit.contain,
                       errorBuilder: (context, error, stackTrace) => 
-                          const Text('GIF Completed tidak ditemukan', style: TextStyle(color: Colors.red)),
+                          const Text('GIF Completed Not Found', style: TextStyle(color: Colors.red)),
                     ),
                   ),
                 ),
@@ -128,7 +128,7 @@ class OrderDetailScreen extends StatelessWidget {
                       height: 250, 
                       fit: BoxFit.contain,
                       errorBuilder: (context, error, stackTrace) => 
-                          const Text('GIF On Delivery tidak ditemukan', style: TextStyle(color: Colors.red)),
+                          const Text('GIF On Delivery Not Found', style: TextStyle(color: Colors.red)),
                     ),
                   ),
                 ),
@@ -210,11 +210,11 @@ class OrderDetailScreen extends StatelessWidget {
             Text(DateFormat('d MMMM yyyy, HH:mm').format(currentOrder.orderDate), style: TextStyle(color: Colors.grey[600])),
             const Divider(height: 24),
 
-            _buildCostRow('Subtotal Harga Makanan', subtotal),
-            _buildCostRow('Biaya Pengiriman', deliveryFee),
-            _buildCostRow('Biaya Admin', adminFee),
+            _buildCostRow('Food Price Subtotal', subtotal),
+            _buildCostRow('Delivery Fee', deliveryFee),
+            _buildCostRow('Admin Fee', adminFee),
             const Divider(),
-            _buildCostRow('Total Pembayaran', currentOrder.totalPrice, isTotal: true),
+            _buildCostRow('Payment Total', currentOrder.totalPrice, isTotal: true),
           ],
         ),
       ),
@@ -242,7 +242,7 @@ class OrderDetailScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Item Dipesan:', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            const Text('Items Ordered:', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             const Divider(),
             ...currentOrder.items.map((item) => Padding(
               padding: const EdgeInsets.symmetric(vertical: 4.0),

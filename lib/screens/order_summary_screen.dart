@@ -34,7 +34,7 @@ class OrderSummaryScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Ringkasan Pesanan'),
+        title: const Text('Order Summary'),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16.0),
@@ -60,7 +60,7 @@ class OrderSummaryScreen extends StatelessWidget {
           const Divider(),
           const SizedBox(height: 16),
           _buildCostRow('Subtotal', subtotal),
-          _buildCostRow('Biaya Pengiriman', deliveryFee),
+          _buildCostRow('Delivery Fee', deliveryFee),
           const Divider(),
           _buildCostRow('Total', total, isTotal: true),
         ],
@@ -85,7 +85,7 @@ class OrderSummaryScreen extends StatelessWidget {
             foregroundColor: Colors.white,
             padding: const EdgeInsets.symmetric(vertical: 16),
           ),
-          child: const Text('Lanjutkan ke Pembayaran'),
+          child: const Text('Proceed to Payment'),
         ),
       ),
     );

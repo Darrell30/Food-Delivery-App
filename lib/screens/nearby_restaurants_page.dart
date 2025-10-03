@@ -33,10 +33,10 @@ class _NearbyRestaurantsPageState extends State<NearbyRestaurantsPage> {
             return const Center(child: CircularProgressIndicator());
           }
           if (snapshot.hasError) {
-            return const Center(child: Text('Gagal memuat data restoran.'));
+            return const Center(child: Text('Failed to load restaurant data.'));
           }
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('Tidak ada restoran ditemukan.'));
+            return const Center(child: Text('No restaurants found.'));
           }
 
           final restaurants = snapshot.data!;

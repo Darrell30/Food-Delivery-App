@@ -128,7 +128,7 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
-                child: const Text('Pesan Sekarang'),
+                child: const Text('Order Now'),
               ),
             )
           : null,

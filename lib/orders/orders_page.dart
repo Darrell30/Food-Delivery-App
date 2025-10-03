@@ -41,7 +41,7 @@ class _OrdersPageState extends State<OrdersPage> with SingleTickerProviderStateM
     if (orders.isEmpty) {
       return const Center(
         child: Text(
-          'Tidak ada pesanan di kategori ini.',
+          'No orders in this category.',
           style: TextStyle(fontSize: 16, color: Colors.grey),
         ),
       );
@@ -63,17 +63,17 @@ class _OrdersPageState extends State<OrdersPage> with SingleTickerProviderStateM
     final allOrders = orderProvider.orderHistory;
     final isLoading = orderProvider.isLoading;
 
-    final pendingOrders = allOrders.where((order) => order.status == 'pending' || order.status == 'Menunggu Konfirmasi').toList();
+    final pendingOrders = allOrders.where((order) => order.status == 'pending' || order.status == 'Awaiting Confirmation').toList();
     
     final onDeliveryOrders = allOrders.where((order) => 
         order.status == 'Delivery' || 
-        order.status == 'Diproses' || 
-        order.status == 'Siap Diambil' ||
-        (order.status == 'Menunggu Konfirmasi' && orderProvider.currentlyProcessingOrderId == order.orderId)
+        order.status == 'In progress' || 
+        order.status == 'Ready for Pickup' ||
+        (order.status == 'Awaiting Confirmation' && orderProvider.currentlyProcessingOrderId == order.orderId)
     ).toList();
     
-    final completedOrders = allOrders.where((order) => order.status == 'Selesai').toList();
-    final cancelledOrders = allOrders.where((order) => order.status == 'Dibatalkan').toList();
+    final completedOrders = allOrders.where((order) => order.status == 'Completed').toList();
+    final cancelledOrders = allOrders.where((order) => order.status == 'Cancelled').toList();
 
 
     return Scaffold(

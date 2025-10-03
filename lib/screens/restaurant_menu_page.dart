@@ -60,7 +60,7 @@ class _RestaurantMenuPageState extends State<RestaurantMenuPage> {
   Widget build(BuildContext context) {
     final bool isOrderReady = _selectedItems.isNotEmpty;
     return Scaffold(
-      appBar: AppBar(title: Text('Menu di ${widget.placeName}')),
+      appBar: AppBar(title: Text('Menu In ${widget.placeName}')),
       body: ListView.builder(
         itemCount: _menu.length,
         itemBuilder: (context, index) {
@@ -92,7 +92,7 @@ class _RestaurantMenuPageState extends State<RestaurantMenuPage> {
       bottomNavigationBar: isOrderReady
           ? Padding(
               padding: const EdgeInsets.all(16.0),
-              child: ElevatedButton(onPressed: _processOrder, child: const Text('Buat Pesanan')),
+              child: ElevatedButton(onPressed: _processOrder, child: const Text('Make Order')),
             )
           : null,
     );

@@ -11,38 +11,38 @@ class OrderHistoryCard extends StatelessWidget {
   const OrderHistoryCard({super.key, required this.order});
 
   Color _getStatusBackgroundColor(String status) {
-    switch (status) {
-      case 'Selesai':
-        return Colors.green.shade100;
-      case 'Dibatalkan':
-        return Colors.red.shade100;
-      case 'pending':
-      case 'Diproses':
-      case 'Siap Diambil':
-      case 'Menunggu Konfirmasi':
-      case 'on_delivery': 
-        return Colors.orange.shade100;
-      default:
-        return Colors.grey.shade300;
-    }
+  switch (status) {
+    case 'Completed': 
+      return Colors.green.shade100;
+    case 'Cancelled': 
+      return Colors.red.shade100;
+    case 'pending':
+    case 'In Progress': 
+    case 'Ready for Pickup': 
+    case 'Awaiting Confirmation': 
+    case 'on_delivery': 
+      return Colors.orange.shade100;
+    default:
+      return Colors.grey.shade300;
   }
+}
 
-  Color _getStatusTextColor(String status) {
-    switch (status) {
-      case 'Selesai':
-        return Colors.green.shade800;
-      case 'Dibatalkan':
-        return Colors.red.shade800;
-      case 'pending':
-      case 'Diproses':
-      case 'Siap Diambil':
-      case 'Menunggu Konfirmasi':
-      case 'on_delivery': 
-        return Colors.orange.shade800;
-      default:
-        return Colors.black;
-    }
+Color _getStatusTextColor(String status) {
+  switch (status) {
+    case 'Completed': 
+      return Colors.green.shade800;
+    case 'Cancelled': 
+      return Colors.red.shade800;
+    case 'pending':
+    case 'In Progress': 
+    case 'Ready for Pickup': 
+    case 'Awaiting Confirmation': 
+    case 'on_delivery': 
+      return Colors.orange.shade800;
+    default:
+      return Colors.black;
   }
+}
 
   void _showCancelConfirmationDialog(BuildContext context) {
     showDialog(
@@ -93,7 +93,7 @@ class OrderHistoryCard extends StatelessWidget {
         
         final bool canBeCancelled = 
             order.status == 'pending' || 
-            order.status == 'Menunggu Konfirmasi';
+            order.status == 'Waiting for Confirmation';
 
         return Card(
           margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -165,7 +165,7 @@ class OrderHistoryCard extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.only(bottom: 8.0),
                     child: Text(
-                      'Pesanan sedang dipersiapkan...',
+                      'Order is being prepared...',
                       style: TextStyle(color: Colors.blue.shade700, fontStyle: FontStyle.italic),
                     ),
                   ),
