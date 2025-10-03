@@ -23,8 +23,8 @@ class OrderSuccessScreen extends StatelessWidget {
             children: [
               Image.asset(
                 'assets/gifs/Success_payment.gif', 
-                width: 150, 
-                height: 150, 
+                width: 250, 
+                height: 250, 
                 fit: BoxFit.contain,
                 errorBuilder: (context, error, stackTrace) => 
                     const Icon(Icons.error, color: Colors.red, size: 80), 

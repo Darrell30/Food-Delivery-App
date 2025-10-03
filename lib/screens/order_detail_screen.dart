@@ -111,7 +111,7 @@ class OrderDetailScreen extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(vertical: 16.0),
                     child: Image.asset(
                       'assets/gifs/Completed.gif', 
-                      height: 150, 
+                      height: 250, 
                       fit: BoxFit.contain,
                       errorBuilder: (context, error, stackTrace) => 
                           const Text('GIF Completed tidak ditemukan', style: TextStyle(color: Colors.red)),
@@ -125,7 +125,7 @@ class OrderDetailScreen extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(vertical: 16.0),
                     child: Image.asset(
                       'assets/gifs/On_Delivery.gif', 
-                      height: 150, 
+                      height: 250, 
                       fit: BoxFit.contain,
                       errorBuilder: (context, error, stackTrace) => 
                           const Text('GIF On Delivery tidak ditemukan', style: TextStyle(color: Colors.red)),
