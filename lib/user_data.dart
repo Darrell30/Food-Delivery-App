@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'models/search_model.dart';
+import '../models/search_model.dart';
 
 class UserData extends ChangeNotifier {
   String _userName = "Enter Your Name";
@@ -45,18 +45,27 @@ class UserData extends ChangeNotifier {
 
   Future<void> loadFixedUserData() async {
     final prefs = await SharedPreferences.getInstance();
-    
-    _userName = "Darrell";
+    // --- Check for existing username before setting a fixed one ---
+    String? currentUserName = prefs.getString('userName');
+    // If a valid, non-default name is already saved, keep it.
+    if (currentUserName != null && currentUserName.isNotEmpty && currentUserName != 'Enter Your Name') {
+      _userName = currentUserName;
+    } else {
+      // Otherwise, set the fixed default name.
+      _userName = "Darrell";
+    }
     await prefs.setString('userName', _userName);
 
+    // --- Check for existing address ---
     String? currentAddress = prefs.getString('userAddress');
     if (currentAddress != null && currentAddress.isNotEmpty) {
       _userAddress = currentAddress;
     } else {
-      _userAddress = "Set Adddress";
+      _userAddress = "Jl. Tlk. Intan, Pejagalan, Penjaringan, Jakarta";
     }
     await prefs.setString('userAddress', _userAddress);
 
+    // --- Check for existing profile picture ---
     String? currentProfilePath = prefs.getString('profileImagePath');
     if (currentProfilePath == null || currentProfilePath.isEmpty) {
       _profileImagePath = "assets/icons/pfp.jpg";
@@ -65,27 +74,22 @@ class UserData extends ChangeNotifier {
     }
     await prefs.setString('profileImagePath', _profileImagePath);
 
+    // --- Reset orders on login ---
     _orders = [];
     await prefs.setString('userOrders', json.encode([]));
 
     notifyListeners();
   }
 
-  // ✅ --- THIS FUNCTION IS NOW CORRECT --- ✅
   Future<void> logout() async {
-    // 1. Reset the app's state in memory.
     _userName = "Enter Your Name";
     _userAddress = "Set my address";
     _profileImagePath = "";
     _orders = [];
 
-    // 2. Only clear the session flag and transactional data.
-    // We NO LONGER remove userName, userAddress, or profileImagePath.
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('isLoggedIn', false);
-    await prefs.remove('userOrders'); 
-    
-    // 3. Do not call notifyListeners() to prevent freezes.
+    await prefs.remove('userOrders');
   }
 
   Future<void> addNewOrder(OrderModel newOrder) async {
