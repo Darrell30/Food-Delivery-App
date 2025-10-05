@@ -32,7 +32,7 @@ class OrderSuccessScreen extends StatelessWidget {
               
               const SizedBox(height: 30),
               const Text(
-                'Order Successful!',
+                'Pesanan Berhasil!',
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
