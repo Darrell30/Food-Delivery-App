@@ -85,27 +85,26 @@ class OrderProvider with ChangeNotifier {
     
     _currentlyProcessingOrderId = orderId;
     _orderProcessingTime = 10;
-    updateOrderStatus(orderId, 'In Progress (Cooking)');
+    updateOrderStatus(orderId, 'Processing (Cooking)');
 
     _processingTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_orderProcessingTime > 0) {
         _orderProcessingTime--;
-        notifyListeners();
+        notifyListeners(); 
       } else {
 
         timer.cancel();
         
         final finishedOrderId = _currentlyProcessingOrderId; 
+        
+        _currentlyProcessingOrderId = null;
+        _orderProcessingTime = 0;
+        _processingTimer = null;
+
         if (finishedOrderId != null) {
           updateOrderStatus(finishedOrderId, 'Ready for Pickup');
+          notifyListeners();
         }
-
-        _processingTimer = null;
-        _orderProcessingTime = 0;
-        _currentlyProcessingOrderId = null;
-
-        notifyListeners(); 
-
       }
     });
   }

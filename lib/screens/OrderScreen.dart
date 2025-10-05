@@ -6,6 +6,7 @@ import 'package:food_delivery_app/models/search_model.dart';
 import 'package:food_delivery_app/models/menu_item.dart';
 import '../providers/order_provider.dart';
 import '../providers/tab_provider.dart';
+import '../main.dart'; 
 
 class OrderScreen extends StatefulWidget {
   final String placeName;
@@ -31,14 +32,22 @@ class _OrderScreenState extends State<OrderScreen> {
     
     final orderProvider = Provider.of<OrderProvider>(context, listen: false);
     
-    if (orderProvider.currentlyProcessingOrderId != null) {
+    if (orderProvider.currentlyProcessingOrderId != null && orderProvider.isProcessing) {
       try {
-        _currentOrder = orderProvider.orderHistory.firstWhere(
+        final OrderModel foundOrder = orderProvider.orderHistory.firstWhere(
           (order) => order.orderId == orderProvider.currentlyProcessingOrderId,
         );
+        
+        if (foundOrder.status == 'Processing (Cooking)') {
+             _currentOrder = foundOrder; 
+        } else {
+             _currentOrder = null;
+        }
       } catch (_) {
         _currentOrder = null; 
       }
+    } else {
+        _currentOrder = null;
     }
   }
 
@@ -53,7 +62,7 @@ class _OrderScreenState extends State<OrderScreen> {
     } else if (secondsRemaining >= 1) {
       return "Your Order is being Packed";
     } else {
-      return "You can get your Order Now!";
+      return "Your Order is Ready for Pickup!";
     }
   }
 
@@ -81,29 +90,53 @@ class _OrderScreenState extends State<OrderScreen> {
       _currentOrder = newOrderModel;
     });
   }
+  
+  void _goToOrderHistory(BuildContext context, TabProvider tabProvider) {
+    setState(() {
+      _currentOrder = null;
+    });
+    
+    Navigator.pop(context); 
+
+    Future.microtask(() {
+      tabProvider.changeTab(2); 
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Viewing Order History.')),
+      );
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final orderProvider = Provider.of<OrderProvider>(context);
+    final tabProvider = Provider.of<TabProvider>(context, listen: false);
     
-    final bool isThisOrderProcessing = 
-        _currentOrder != null && 
-        orderProvider.isProcessing && 
-        orderProvider.currentlyProcessingOrderId == _currentOrder!.orderId;
-        
-    final bool isTimerFinished = 
-        _currentOrder != null && 
-        !orderProvider.isProcessing && 
-        orderProvider.currentlyProcessingOrderId == null && 
+    final bool hasOrderReadyInHistory = 
         orderProvider.orderHistory.any((o) => 
-            o.orderId == _currentOrder!.orderId && o.status == 'Ready to Take'
+            _currentOrder != null && 
+            o.orderId == _currentOrder!.orderId && 
+            o.status == 'Ready for Pickup'
         );
         
-    final bool isOrderPending = _currentOrder == null || (_currentOrder != null && !isThisOrderProcessing && !isTimerFinished);
+    final bool isProcessing = 
+        _currentOrder != null && 
+        orderProvider.currentlyProcessingOrderId == _currentOrder!.orderId;
+
+    final bool isReadyForPickup = hasOrderReadyInHistory && !isProcessing;
+        
+    final bool isOrderPending = _currentOrder == null || (!isProcessing && !isReadyForPickup);
+
 
     return Scaffold(
       appBar: AppBar(
         title: Text("Order in ${widget.placeName}"),
+        actions: [
+          if (isProcessing || isReadyForPickup)
+            TextButton(
+              onPressed: () => _goToOrderHistory(context, tabProvider),
+              child: const Text('Go to Orders', style: TextStyle(color: Colors.blue)),
+            ),
+        ],
       ),
       body: Center(
         child: Column(
@@ -134,7 +167,7 @@ class _OrderScreenState extends State<OrderScreen> {
               ),
             ],
 
-            if (isThisOrderProcessing) ...[
+            if (isProcessing) ...[
               Image.asset(
                 'assets/gifs/Cooking.gif', 
                 width: 350, 
@@ -160,43 +193,33 @@ class _OrderScreenState extends State<OrderScreen> {
               ),
             ],
 
-            if (isTimerFinished) ...[
+            if (isReadyForPickup) ...[
+              Image.asset(
+                'assets/gifs/Cooking.gif', 
+                width: 350, 
+                height: 350, 
+              ),
+              const SizedBox(height: 30),
               const Text(
-                "Order is done,Come get your Order",
-                style: TextStyle(fontSize: 22),
+                "Your Order is Ready for Pickup!", 
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 10),
               const Text(
-                "Order has been taken!",
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.green),
+                "Your Order is Ready! Please proceed to pickup.",
+                style: TextStyle(fontSize: 16, color: Colors.green),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 40),
               ElevatedButton(
-                onPressed: () {
-                  final tabProvider = Provider.of<TabProvider>(context, listen: false);
-
-                  setState(() {
-                    _currentOrder = null;
-                  });
-                  
-                  Navigator.pop(context); 
-
-                  Future.microtask(() {
-                    tabProvider.changeTab(2); 
-
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Order Finished, Open Order History.')),
-                    );
-                  });
-                },
+                onPressed: () => _goToOrderHistory(context, tabProvider),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color.fromRGBO(39, 0, 197, 1),
                   padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 ),
-                child: const Text('Back to Order History', style: TextStyle(color: Colors.white, fontSize: 18)),
+                child: const Text('Confirm Pickup / View Orders', style: TextStyle(color: Colors.white, fontSize: 18)),
               ),
             ],
           ],

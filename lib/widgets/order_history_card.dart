@@ -13,21 +13,16 @@ class OrderHistoryCard extends StatelessWidget {
   Color _getStatusBackgroundColor(String status) {
   switch (status) {
     case 'Completed': 
-    case 'Selesai':
       return Colors.green.shade100;
     case 'Cancelled': 
-    case 'Dibatalkan':
       return Colors.red.shade100;
       
-    case 'pending':
     case 'Pending Payment':
-    case 'In Progress': 
-    case 'In Progress (Cooking)': 
+    case 'Waiting Confirmation': 
+    case 'Processing (Cooking)': 
     case 'Ready for Pickup': 
-    case 'Awaiting Confirmation': 
     case 'On Delivery': 
     case 'Delivery':
-    case 'on_delivery': 
       return Colors.orange.shade100;
       
     default:
@@ -38,21 +33,16 @@ class OrderHistoryCard extends StatelessWidget {
 Color _getStatusTextColor(String status) {
   switch (status) {
     case 'Completed': 
-    case 'Selesai':
       return Colors.green.shade800;
     case 'Cancelled': 
-    case 'Dibatalkan':
       return Colors.red.shade800;
       
-    case 'pending':
     case 'Pending Payment':
-    case 'In Progress': 
-    case 'In Progress (Cooking)': 
+    case 'Waiting Confirmation':
+    case 'Processing (Cooking)': 
     case 'Ready for Pickup': 
-    case 'Awaiting Confirmation': 
     case 'On Delivery': 
     case 'Delivery':
-    case 'on_delivery': 
       return Colors.orange.shade800;
       
     default:
@@ -96,21 +86,27 @@ Color _getStatusTextColor(String status) {
   Widget build(BuildContext context) {
     return Selector<OrderProvider, Map<String, dynamic>>(
       selector: (context, provider) => {
-        'isProcessing': provider.isProcessing && provider.currentlyProcessingOrderId == order.orderId,
-        'secondsRemaining': provider.secondsRemaining,
+        'isProcessing': provider.currentlyProcessingOrderId == order.orderId && provider.isProcessing,
+        'secondsRemaining': provider.currentlyProcessingOrderId == order.orderId ? provider.secondsRemaining : 0,
       },
       builder: (context, data, child) {
         
         final bool isProcessing = data['isProcessing'] as bool;
         final int secondsRemaining = data['secondsRemaining'] as int;
 
+        String displayStatus = order.status;
+        if (displayStatus == 'Processing (Cooking)' && isProcessing) {
+             displayStatus = 'Processing (Cooking)';
+        } else if (displayStatus == 'Processing (Cooking)' && !isProcessing) {
+             displayStatus = 'Ready for Pickup';
+        }
+
         final totalItems = order.items.fold(0, (sum, item) => sum + item.quantity);
         final formattedDate = DateFormat('d MMMM yyyy, HH:mm').format(order.orderDate);
         
         final bool canBeCancelled = 
-            order.status == 'pending' || 
-            order.status == 'Awaiting Confirmation' ||
-            order.status == 'Pending Payment';
+            order.status == 'Pending Payment' || 
+            order.status == 'Waiting Confirmation';
 
         return Card(
           margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -135,36 +131,20 @@ Color _getStatusTextColor(String status) {
                     ),
                     const SizedBox(width: 8),
 
-                    if (!isProcessing)
-                      Container(
+                    Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: _getStatusBackgroundColor(order.status),
+                          color: isProcessing ? Colors.blue.shade100 : _getStatusBackgroundColor(displayStatus),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
-                          order.status,
+                          isProcessing 
+                            ? 'Time Left: ${secondsRemaining}s' 
+                            : displayStatus, 
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
-                            color: _getStatusTextColor(order.status),
-                          ),
-                        ),
-                      ),
-                      
-                    if (isProcessing)
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: Colors.blue.shade100,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          'Sisa Waktu: ${secondsRemaining}s',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.blue.shade800,
+                            color: isProcessing ? Colors.blue.shade800 : _getStatusTextColor(displayStatus),
                           ),
                         ),
                       ),

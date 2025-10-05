@@ -79,6 +79,7 @@ class _PickUpScreenState extends State<PickUpScreen> {
                   title: place["name"],
                   snippet: place["vicinity"],
                   onTap: () {
+                    // Dikembalikan ke Navigator.push
                     Navigator.push(
                       context,
                       MaterialPageRoute(

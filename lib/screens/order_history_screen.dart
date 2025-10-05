@@ -17,7 +17,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
   Widget build(BuildContext context) {
     final orderProvider = Provider.of<OrderProvider>(context);
     final _orderHistory = orderProvider.orderHistory;
-
+    
     return Scaffold(
       appBar: AppBar(
         title: const Text('Order History'),
@@ -33,7 +33,11 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
               itemCount: _orderHistory.length,
               itemBuilder: (context, index) {
                 final order = _orderHistory[index];
-                return OrderHistoryCard(order: order);
+                
+                
+                return OrderHistoryCard(
+                  order: order,
+                );
               },
             ),
     );
