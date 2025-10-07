@@ -23,7 +23,7 @@ class PickUpScreen extends StatefulWidget {
 
 class _PickUpScreenState extends State<PickUpScreen> {
   late Future<MapData> _mapDataFuture;
-  static const String apiKey = "AIzaSyCVNllzvx7sVo7O6DHJxElh_vhAPDwcifQ";
+  static const String apiKey = "YOUR_API_KEY_HERE";
 
   @override
   void initState() {
