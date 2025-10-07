@@ -6,7 +6,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:http/http.dart' as http;
 import 'package:uuid/uuid.dart';
 
-const String googleApiKey = "AIzaSyCVNllzvx7sVo7O6DHJxElh_vhAPDwcifQ";
+const String googleApiKey = "YOUR_API_KEY_HERE";
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
